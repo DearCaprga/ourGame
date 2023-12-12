@@ -28,8 +28,8 @@ class Settings:
                        ['Music', 'Scream', 'Speed'][i], '#92000a')  # 120 190 260
             write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
                        ['off / on', 'low / high', 'light / hard'][i], '#92000a')
-
         pygame.display.flip()
+
         running1 = True
         st_mus = 0
         while running1:
@@ -41,11 +41,13 @@ class Settings:
                     print(x, y)
                     if 300 <= x <= 420 and 120 <= y <= 160:
                         if x <= 350:
-                            #write_some(screen_set, (80, 120), 'Bradley Hand ITC', 40, 'off / on', 'blue')
+                            pygame.draw.line(screen, pygame.Color("#92000a"), (350, 160), (300, 160), 1)
+                            pygame.display.flip()
                             st_mus = 0
-                            print(1)
                         elif x >= 380:
                             st_mus = 1
+                            pygame.draw.line(screen, pygame.Color("#92000a"), (420, 160), (380, 160), 1)
+                            pygame.display.flip()
                         self.play_music(st_mus)
                         print('music')
                     elif 300 <= x <= 470 and 190 <= y <= 230:
