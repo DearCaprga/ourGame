@@ -2,6 +2,8 @@ import pygame
 import pygame.freetype
 from PIL import Image
 import pygame_menu as pm
+import random
+from threading import Timer
 
 
 def new_window(width, height):
@@ -105,11 +107,17 @@ class Start_window:
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
         [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
                     '#92000a') for i in range(2)]
-
-        draw_picture("startovi.jpg", (250, 250), 25, (-40, 150))
-        draw_picture('arm.jpg', (200, 200), -45, (400, 300))
-
         Settings()
+        draw_picture("startovi.jpg", (250, 250), 25, (-40, 150))
+        draw_picture('ladon.jpg', (200, 200), -45, (400, 300))
+        pygame.display.flip()
+        pygame.time.wait(5000)
+        for i in range(random.randrange(2, 5)):
+            turn = random.randrange(1, 90, 1)
+            k = random.randrange(100, 200, 1)
+            sizee = (k, k)
+            coord = (random.randrange(400, 599, 1), random.randrange(110, 399, 1))
+            draw_picture('ladon.jpg', sizee, turn, coord)
 
 
 class Locations:
@@ -145,14 +153,9 @@ class Locations:
 
 
 if __name__ == '__main__':
-    pygame.init()
-    size = width, height = 600, 400
-    screen = pygame.display.set_mode(size)
-    screen.fill(pygame.Color(0, 0, 0))
+    screen = new_window(600, 400)
     Start_window()
-
     pygame.display.flip()
-
     running = True
 
     while running:
@@ -161,6 +164,7 @@ if __name__ == '__main__':
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
+                print(x, y)
                 if x >= 535 and y <= 70:  # clicked on settings
                     Settings().settings_view()
                 elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
