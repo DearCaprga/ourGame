@@ -22,7 +22,7 @@ class Settings:
         size = width, height = 600, 400
         pygame.font.init()
         screen_set = pygame.display.set_mode(size)
-        write_some(screen_set, (200, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
+        write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
         for i in range(3):
             write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
                        ['Music', 'Scream', 'Speed'][i], '#92000a')  # 120 190 260
@@ -41,7 +41,7 @@ class Settings:
                     print(x, y)
                     if 300 <= x <= 420 and 120 <= y <= 160:
                         if x <= 350:
-                            # write_some(screen_set, (80, 120), 'Bradley Hand ITC', 40, 'off / on', 'blue')
+                            #write_some(screen_set, (80, 120), 'Bradley Hand ITC', 40, 'off / on', 'blue')
                             st_mus = 0
                             print(1)
                         elif x >= 380:
@@ -63,7 +63,7 @@ class Settings:
             pygame.mixer.music.load('background music.mp3')
             pygame.mixer.music.play(-1)
         else:
-            pygame.mixer.pause()
+            pygame.mixer.music.pause()
 
 
 class Start_window:
