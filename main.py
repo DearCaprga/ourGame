@@ -3,10 +3,13 @@ import pygame.freetype
 from PIL import Image
 import pygame_menu as pm
 
-ALL_TIMER = 0
-HEALTH = 100
-COUNT_LEVEL = 3
-THINGS = 0
+
+def new_window(width, height):
+    pygame.init()
+    size = width, height = width, height
+    screen = pygame.display.set_mode(size)
+    screen.fill(pygame.Color(0, 0, 0))
+    return screen
 
 
 def write_some(scren, coordinates, style, sizi, texty, color):
@@ -15,18 +18,22 @@ def write_some(scren, coordinates, style, sizi, texty, color):
     scren.blit(text, coordinates)
 
 
+def draw_picture(name, size, turn, coor):
+    img = Image.open(name)
+    img.thumbnail(size=size)
+    img = img.rotate(turn)
+    img.save('picture.jpg')
+    surf = pygame.image.load("picture.jpg")
+    screen.blit(surf, coor)
+
+
 class Settings:
     def __init__(self):
-        img = Image.open("seting.jpg")
-        img.thumbnail(size=(70, 70))
-        img.save('picture.jpg')
-        car_surf = pygame.image.load("picture.jpg")
-        screen.blit(car_surf, (535, 0))
+        draw_picture('seting.jpg', (70, 70), 0, (535, 0))
 
     def settings_view(self):
-        size = width, height = 600, 400
-        pygame.font.init()
-        screen_set = pygame.display.set_mode(size)
+        screen_set = new_window(600, 400)
+
         write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
         for i in range(3):
             write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
@@ -98,6 +105,10 @@ class Start_window:
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
         [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
                     '#92000a') for i in range(2)]
+
+        draw_picture("startovi.jpg", (250, 250), 25, (-40, 150))
+        draw_picture('arm.jpg', (200, 200), -45, (400, 300))
+
         Settings()
 
 
@@ -110,10 +121,7 @@ class Locations:
         start_time = pygame.time.get_ticks()
         print(start_time)
 
-        pygame.init()
-        size = width, height = 700, 700
-        screen0 = pygame.display.set_mode(size)
-        screen0.fill(pygame.Color(0, 0, 0))
+        screen0 = new_window(800, 600)
 
         running = True
 
