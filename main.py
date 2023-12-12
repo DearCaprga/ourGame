@@ -3,6 +3,11 @@ import pygame.freetype
 from PIL import Image
 import pygame_menu as pm
 
+ALL_TIMER = 0
+HEALTH = 100
+COUNT_LEVEL = 3
+THINGS = 0
+
 
 def write_some(scren, coordinates, style, sizi, texty, color):
     font = pygame.font.SysFont(style, sizi)
@@ -38,24 +43,43 @@ class Settings:
                     running1 = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
-                    print(x, y)
                     if 300 <= x <= 420 and 120 <= y <= 160:
                         if x <= 350:
-                            pygame.draw.line(screen, pygame.Color("#92000a"), (350, 160), (300, 160), 1)
+                            pygame.draw.line(screen, "#92000a", (350, 165), (300, 165), 1)
+                            pygame.draw.line(screen, 'black', (420, 165), (380, 165), 1)
                             pygame.display.flip()
                             st_mus = 0
                         elif x >= 380:
                             st_mus = 1
-                            pygame.draw.line(screen, pygame.Color("#92000a"), (420, 160), (380, 160), 1)
+                            pygame.draw.line(screen, "#92000a", (420, 165), (380, 165), 1)
+                            pygame.draw.line(screen, 'black', (350, 165), (300, 165), 1)
                             pygame.display.flip()
                         self.play_music(st_mus)
                         print('music')
                     elif 300 <= x <= 470 and 190 <= y <= 230:
-                        screem_hard = (0, 1)
                         print('screem')
+                        if x <= 355:
+                            pygame.draw.line(screen, "#92000a", (355, 235), (300, 235), 1)
+                            pygame.draw.line(screen, 'black', (460, 235), (390, 235), 1)
+                            pygame.display.flip()
+                            screem_hard = 0
+                        elif x >= 390:
+                            screem_hard = 1
+                            pygame.draw.line(screen, "#92000a", (460, 235), (390, 235), 1)
+                            pygame.draw.line(screen, 'black', (390, 235), (300, 235), 1)
+                            pygame.display.flip()
                     elif 300 <= x <= 500 and 260 <= y <= 300:
-                        passing_speed = (0, 1)
                         print('speed')
+                        if x <= 380:
+                            pygame.draw.line(screen, "#92000a", (380, 305), (300, 305), 1)
+                            pygame.draw.line(screen, 'black', (490, 305), (390, 305), 1)
+                            pygame.display.flip()
+                            passing_speed = 0
+                        elif x >= 420:
+                            passing_speed = 1
+                            pygame.draw.line(screen, "#92000a", (490, 305), (420, 305), 1)
+                            pygame.draw.line(screen, 'black', (390, 305), (300, 305), 1)
+                            pygame.display.flip()
                 if event.type == pygame.KEYDOWN and event.type == pygame.K_ESCAPE:
                     pygame.display.quit()
                     pygame.quit()
@@ -73,13 +97,43 @@ class Start_window:
         pygame.font.init()
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
         [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
-                    '#92000a')
-         for i in range(2)]
+                    '#92000a') for i in range(2)]
         Settings()
 
 
-def location0():
-    pass
+class Locations:
+    def __init__(self):
+        pass
+
+    def location0(self):  # for insructins
+        clock = pygame.time.Clock()
+        start_time = pygame.time.get_ticks()
+        print(start_time)
+
+        pygame.init()
+        size = width, height = 700, 700
+        screen0 = pygame.display.set_mode(size)
+        screen0.fill(pygame.Color(0, 0, 0))
+
+        running = True
+
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+
+        pygame.quit()
+
+    def preface(self):  # there will be small preface. It will be with pictures
+        self.location0()
+
+    def move_poin(self):  # provides 4-sided viewing
+        pass
+
+    def click_thing(self):  # bring the pressed item closer
+        pass
 
 
 if __name__ == '__main__':
@@ -88,8 +142,6 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     screen.fill(pygame.Color(0, 0, 0))
     Start_window()
-    mytheme = pm.themes.THEME_DARK.copy()
-    mytheme.background_color = (0, 0, 0)
 
     pygame.display.flip()
 
@@ -104,5 +156,5 @@ if __name__ == '__main__':
                 if x >= 535 and y <= 70:  # clicked on settings
                     Settings().settings_view()
                 elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
-                    location0()
+                    Locations().preface()
     pygame.quit()
