@@ -31,6 +31,11 @@ class Settings:
                     pygame.display.quit()
                     pygame.quit()
 
+    def play_music(self, state):
+        if state:
+            pygame.mixer.music.load('background music.mp3')
+            pygame.mixer.music.play(-1)
+
 
 class Start_window:
     def __init__(self):
