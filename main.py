@@ -4,6 +4,12 @@ from PIL import Image
 import pygame_menu as pm
 
 
+def write_some(scren, coordinates, style, sizi, texty, color):
+    font = pygame.font.SysFont(style, sizi)
+    text = font.render(texty, True, color)
+    scren.blit(text, coordinates)
+
+
 class Settings:
     def __init__(self):
         img = Image.open("seting.jpg")
@@ -16,17 +22,38 @@ class Settings:
         size = width, height = 600, 400
         pygame.font.init()
         screen_set = pygame.display.set_mode(size)
-        font = pygame.font.SysFont('Bradley Hand ITC', 50)
-        text = font.render('Settings', True, '#92000a')
-        screen_set.blit(text, (200, 20))
+        write_some(screen_set, (200, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
+        for i in range(3):
+            write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
+                       ['Music', 'Scream', 'Speed'][i], '#92000a')  # 120 190 260
+            write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
+                       ['off / on', 'low / high', 'light / hard'][i], '#92000a')
+
         pygame.display.flip()
         running1 = True
+        st_mus = 0
         while running1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running1 = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
+                    print(x, y)
+                    if 300 <= x <= 420 and 120 <= y <= 160:
+                        if x <= 350:
+                            # write_some(screen_set, (80, 120), 'Bradley Hand ITC', 40, 'off / on', 'blue')
+                            st_mus = 0
+                            print(1)
+                        elif x >= 380:
+                            st_mus = 1
+                        self.play_music(st_mus)
+                        print('music')
+                    elif 300 <= x <= 470 and 190 <= y <= 230:
+                        screem_hard = (0, 1)
+                        print('screem')
+                    elif 300 <= x <= 500 and 260 <= y <= 300:
+                        passing_speed = (0, 1)
+                        print('speed')
                 if event.type == pygame.KEYDOWN and event.type == pygame.K_ESCAPE:
                     pygame.display.quit()
                     pygame.quit()
@@ -35,17 +62,17 @@ class Settings:
         if state:
             pygame.mixer.music.load('background music.mp3')
             pygame.mixer.music.play(-1)
+        else:
+            pygame.mixer.pause()
 
 
 class Start_window:
     def __init__(self):
         pygame.font.init()
-        font = pygame.font.SysFont('Chiller', 70)
-        text = font.render('Original name', True, '#92000a')
-        screen.blit(text, (150, 40))
-        pygame.draw.rect(screen, '#92000a', pygame.Rect(190, 175, 190, 120), 2, 20)
-        text = font.render('Start!', True, '#92000a')
-        screen.blit(text, (230, 190))
+        pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
+        [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
+                    '#92000a')
+         for i in range(2)]
         Settings()
 
 
@@ -74,6 +101,6 @@ if __name__ == '__main__':
                 x, y = pygame.mouse.get_pos()
                 if x >= 535 and y <= 70:  # clicked on settings
                     Settings().settings_view()
-                elif x >= 190 and y >= 175:  # clicked on start
+                elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
                     location0()
     pygame.quit()
