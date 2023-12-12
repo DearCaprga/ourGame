@@ -3,7 +3,6 @@ import pygame.freetype
 from PIL import Image
 import pygame_menu as pm
 import random
-from threading import Timer
 
 
 def new_window(width, height):
