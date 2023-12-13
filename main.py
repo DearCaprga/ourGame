@@ -102,13 +102,16 @@ class Start_window:
         draw_picture("startovi.jpg", (250, 250), 25, (-40, 150), screen)
         draw_picture('ladon.jpg', (200, 200), -45, (400, 300), screen)
         pygame.display.flip()
-        pygame.time.wait(5000)
+        pygame.time.wait(7000)
+        # clock = pygame.time.Clock()  # do that depends on real time? not on waight
+        # start_time = pygame.time.get_ticks()
         for i in range(random.randrange(2, 5)):
             turn = random.randrange(1, 90, 1)
             k = random.randrange(100, 150, 1)
             sizee = (k, k)
-            coord = (random.randrange(400, 599, 1), random.randrange(110, 399, 1))
-            draw_picture('ladon.jpg', sizee, turn, coord, screen)
+            coord = random.choice([(random.randrange(400, 520, 1), random.randrange(110, 320, 1)),
+                                   (random.randrange(100, 500, 1), random.randrange(295, 320, 1))])
+            draw_picture('blood.jpg', sizee, turn, coord, screen)
 
 
 class Locations:
