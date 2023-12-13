@@ -19,7 +19,7 @@ def write_some(scren, coordinates, style, sizi, texty, color):
     scren.blit(text, coordinates)
 
 
-def draw_picture(name, size, turn, coor):
+def draw_picture(name, size, turn, coor, screen):
     img = Image.open(name)
     img.thumbnail(size=size)
     img = img.rotate(turn)
@@ -29,8 +29,8 @@ def draw_picture(name, size, turn, coor):
 
 
 class Settings:
-    def __init__(self):
-        draw_picture('seting.jpg', (70, 70), 0, (535, 0))
+    def __init__(self, screen):
+        draw_picture('seting.jpg', (70, 70), 0, (535, 0), screen)
 
     def settings_view(self):
         screen_set = new_window(600, 400)
@@ -42,9 +42,10 @@ class Settings:
             write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
                        ['off / on', 'low / high', 'light / hard'][i], '#92000a')
         pygame.display.flip()
-
+        st_mus = 1
+        screem_hard = 0
+        passing_speed = 0
         running1 = True
-        st_mus = 0
         while running1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -53,41 +54,23 @@ class Settings:
                     x, y = pygame.mouse.get_pos()
                     if 300 <= x <= 420 and 120 <= y <= 160:
                         if x <= 350:
-                            pygame.draw.line(screen, "#92000a", (350, 165), (300, 165), 1)
-                            pygame.draw.line(screen, 'black', (420, 165), (380, 165), 1)
-                            pygame.display.flip()
                             st_mus = 0
                         elif x >= 380:
                             st_mus = 1
-                            pygame.draw.line(screen, "#92000a", (420, 165), (380, 165), 1)
-                            pygame.draw.line(screen, 'black', (350, 165), (300, 165), 1)
-                            pygame.display.flip()
+                        self.draw_line(st_mus, 350, 420, 380, 165)
                         self.play_music(st_mus)
-                        print('music')
                     elif 300 <= x <= 470 and 190 <= y <= 230:
-                        print('screem')
                         if x <= 355:
-                            pygame.draw.line(screen, "#92000a", (355, 235), (300, 235), 1)
-                            pygame.draw.line(screen, 'black', (460, 235), (390, 235), 1)
-                            pygame.display.flip()
                             screem_hard = 0
                         elif x >= 390:
                             screem_hard = 1
-                            pygame.draw.line(screen, "#92000a", (460, 235), (390, 235), 1)
-                            pygame.draw.line(screen, 'black', (390, 235), (300, 235), 1)
-                            pygame.display.flip()
+                        self.draw_line(screem_hard, 355, 460, 390, 235)
                     elif 300 <= x <= 500 and 260 <= y <= 300:
-                        print('speed')
                         if x <= 380:
-                            pygame.draw.line(screen, "#92000a", (380, 305), (300, 305), 1)
-                            pygame.draw.line(screen, 'black', (490, 305), (390, 305), 1)
-                            pygame.display.flip()
                             passing_speed = 0
                         elif x >= 420:
                             passing_speed = 1
-                            pygame.draw.line(screen, "#92000a", (490, 305), (420, 305), 1)
-                            pygame.draw.line(screen, 'black', (390, 305), (300, 305), 1)
-                            pygame.display.flip()
+                        self.draw_line(passing_speed, 380, 490, 420, 305)
                 if event.type == pygame.KEYDOWN and event.type == pygame.K_ESCAPE:
                     pygame.display.quit()
                     pygame.quit()
@@ -99,6 +82,15 @@ class Settings:
         else:
             pygame.mixer.music.pause()
 
+    def draw_line(self, state, x1, x2, x3, y):
+        color1 = 'black'
+        color2 = '#92000a'
+        if not state:
+            color1, color2 = color2, color1
+        pygame.draw.line(screen, color1, (x1, y), (300, y), 1)
+        pygame.draw.line(screen, color2, (x2, y), (x3, y), 1)
+        pygame.display.flip()
+
 
 class Start_window:
     def __init__(self):
@@ -106,17 +98,17 @@ class Start_window:
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
         [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
                     '#92000a') for i in range(2)]
-        Settings()
-        draw_picture("startovi.jpg", (250, 250), 25, (-40, 150))
-        draw_picture('ladon.jpg', (200, 200), -45, (400, 300))
+        Settings(screen)
+        draw_picture("startovi.jpg", (250, 250), 25, (-40, 150), screen)
+        draw_picture('ladon.jpg', (200, 200), -45, (400, 300), screen)
         pygame.display.flip()
         pygame.time.wait(5000)
         for i in range(random.randrange(2, 5)):
             turn = random.randrange(1, 90, 1)
-            k = random.randrange(100, 200, 1)
+            k = random.randrange(100, 150, 1)
             sizee = (k, k)
             coord = (random.randrange(400, 599, 1), random.randrange(110, 399, 1))
-            draw_picture('ladon.jpg', sizee, turn, coord)
+            draw_picture('ladon.jpg', sizee, turn, coord, screen)
 
 
 class Locations:
@@ -153,6 +145,7 @@ class Locations:
 
 if __name__ == '__main__':
     screen = new_window(600, 400)
+    #  Settings(screen).play_music(1)
     Start_window()
     pygame.display.flip()
     running = True
@@ -165,7 +158,7 @@ if __name__ == '__main__':
                 x, y = pygame.mouse.get_pos()
                 print(x, y)
                 if x >= 535 and y <= 70:  # clicked on settings
-                    Settings().settings_view()
+                    Settings(screen).settings_view()
                 elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
                     Locations().preface()
     pygame.quit()
