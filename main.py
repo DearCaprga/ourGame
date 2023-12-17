@@ -1,9 +1,13 @@
 import pygame
 
-ALL_TIMER = 0
-HEALTH = 100
-COUNT_LEVEL = 3
-THINGS = 0
+
+def restart():
+    screen.fill(pygame.Color(0, 0, 0))
+    Start_window()
+    ALL_TIMER = 0
+    HEALTH = 100
+    COUNT_LEVEL = 0
+    THINGS = 0
 
 
 def for_final_window(screen):
@@ -50,7 +54,8 @@ if __name__ == '__main__':
     pygame.init()
     size = width, height = 400, 400
     screen = pygame.display.set_mode(size)
-    screen.fill(pygame.Color(0, 0, 0))
+    restart()
+
     for_final_window(screen)
 
     pygame.display.flip()
