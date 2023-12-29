@@ -84,13 +84,26 @@ class Second_level:
         arrow = pygame.sprite.Sprite(all_sprites)
         arrow.image = image
         arrow.rect = arrow.image.get_rect()
-
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     terminate()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    if 10 < x > 100 and 120 < y < 300:
+                        image = load_image('im_lek.jpg')
+                        image = pygame.transform.scale(image, (500, 500))
+                        arrow = pygame.sprite.Sprite(all_sprites)
+                        arrow.image = image
+                        arrow.rect = arrow.image.get_rect()
                 elif event.type == pygame.KEYDOWN or event.type == pygame.K_a:
                     name_images += 1
+                    image = load_image(images[name_images % 4])
+                    image = pygame.transform.scale(image, (500, 500))
+                    arrow = pygame.sprite.Sprite(all_sprites)
+                    arrow.image = image
+                    arrow.rect = arrow.image.get_rect()
+                elif event.type == pygame.KEYDOWN or event.type == pygame.K_s:
                     image = load_image(images[name_images % 4])
                     image = pygame.transform.scale(image, (500, 500))
                     arrow = pygame.sprite.Sprite(all_sprites)
@@ -102,6 +115,7 @@ class Second_level:
                     arrow = pygame.sprite.Sprite(all_sprites)
                     arrow.image = image
                     arrow.rect = arrow.image.get_rect()
+
             screen.fill(pygame.Color(0, 0, 0))
             all_sprites.draw(screen)
             pygame.display.flip()
