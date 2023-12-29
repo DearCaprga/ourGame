@@ -1,9 +1,51 @@
 import pygame
+from PIL import Image
+import os
+import sys
+import random
+
+
+all_sprites = pygame.sprite.Group()
+
+
+def new_window(width, height):
+    pygame.init()
+    size = width, height = width, height
+    screen = pygame.display.set_mode(size)
+    screen.fill(pygame.Color(0, 0, 0))
+    return screen
+
+
+def load_image(name, colorkey=None):
+    fullname = os.path.join('data', name)
+    if not os.path.isfile(fullname):
+        print(f"Файл с изображением '{fullname}' не найден")
+        sys.exit()
+    image = pygame.image.load(fullname)
+    if colorkey is not None:
+        image = image.convert()
+        if colorkey == -1:
+            colorkey = image.get_at((0, 0))
+        image.set_colorkey(colorkey)
+    else:
+        image = image.convert_alpha()
+    return image
+
+
+class Sprites(pygame.sprite.Sprite):
+    def __init__(self, *group, colorkey=None, name_file, xy, turn=0, size=(50, 50)):
+        super().__init__(*group)
+        image = load_image(os.path.join(name_file), turn=turn, size=size, colorkey=colorkey)
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x, self.rect.y = xy[0], xy[1]
+        all_sprites.draw(screen)
+        pygame.display.flip()
 
 
 def restart():
     screen.fill(pygame.Color(0, 0, 0))
-    Start_window()
+    #Start_window()
     ALL_TIMER = 0
     HEALTH = 100
     COUNT_LEVEL = 0
@@ -17,10 +59,52 @@ def for_final_window(screen):
     return False
 
 
+def for_second_level(screen):
+    open_level = Second_level()
+
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+
 def write_some(screen, coordinates, style, sizi, texty, color):
     font = pygame.font.SysFont(style, sizi)
     text = font.render(texty, True, pygame.Color(color))
     screen.blit(text, coordinates)
+
+
+class Second_level:
+    def __init__(self):
+        screen = new_window(500, 500)
+        images = ['im21.jpg', 'im22.jpg', '23.jpg', '24.jpg']
+        name_images = 0
+        image = load_image(images[name_images % 4])
+        image = pygame.transform.scale(image, (500, 500))
+        arrow = pygame.sprite.Sprite(all_sprites)
+        arrow.image = image
+        arrow.rect = arrow.image.get_rect()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+                elif event.type == pygame.KEYDOWN or event.type == pygame.K_a:
+                    name_images += 1
+                    image = load_image(images[name_images % 4])
+                    image = pygame.transform.scale(image, (500, 500))
+                    arrow = pygame.sprite.Sprite(all_sprites)
+                    arrow.image = image
+                    arrow.rect = arrow.image.get_rect()
+                elif event.type == pygame.KEYDOWN or event.type == pygame.K_d:
+                    name_images -= 1
+                    image = load_image(images[name_images % 4])
+                    arrow = pygame.sprite.Sprite(all_sprites)
+                    arrow.image = image
+                    arrow.rect = arrow.image.get_rect()
+            screen.fill(pygame.Color(0, 0, 0))
+            all_sprites.draw(screen)
+            pygame.display.flip()
 
 
 class Final_window:
@@ -54,9 +138,9 @@ if __name__ == '__main__':
     pygame.init()
     size = width, height = 400, 400
     screen = pygame.display.set_mode(size)
-    restart()
+    #restart()
 
-    for_final_window(screen)
+    for_second_level(screen)
 
     pygame.display.flip()
 
