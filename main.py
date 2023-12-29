@@ -6,6 +6,7 @@ import random
 
 
 all_sprites = pygame.sprite.Group()
+clock = pygame.time.Clock()
 
 
 def new_window(width, height):
@@ -96,6 +97,15 @@ class Second_level:
                         arrow = pygame.sprite.Sprite(all_sprites)
                         arrow.image = image
                         arrow.rect = arrow.image.get_rect()
+                        screen.fill(pygame.Color(0, 0, 0))
+                        write_some(screen, (10, 100), 'Bradley Hand ITC', 50, f'Выберете 3 бутылки', '#92000a')
+                        clock.tick(10)
+                        image = load_image('im_lek.jpg')
+                        image = pygame.transform.scale(image, (500, 500))
+                        arrow = pygame.sprite.Sprite(all_sprites)
+                        arrow.image = image
+                        arrow.rect = arrow.image.get_rect()
+                        screen.fill(pygame.Color(0, 0, 0))
                 elif event.type == pygame.KEYDOWN or event.type == pygame.K_a:
                     name_images += 1
                     image = load_image(images[name_images % 4])
