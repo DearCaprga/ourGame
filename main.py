@@ -4,7 +4,6 @@ import os
 import sys
 import random
 
-
 all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
@@ -46,7 +45,7 @@ class Sprites(pygame.sprite.Sprite):
 
 def restart():
     screen.fill(pygame.Color(0, 0, 0))
-    #Start_window()
+    # Start_window()
     ALL_TIMER = 0
     HEALTH = 100
     COUNT_LEVEL = 0
@@ -73,6 +72,25 @@ def write_some(screen, coordinates, style, sizi, texty, color):
     font = pygame.font.SysFont(style, sizi)
     text = font.render(texty, True, pygame.Color(color))
     screen.blit(text, coordinates)
+
+
+COUNT_MED = 0
+
+
+def final(str):
+    if COUNT_MED == 3:
+        COUNT_LEVEL += 1
+        screen = new_window(500, 500)
+        write_some(screen, (50, 70), 'Bradley Hand ITC', 30, f'You complete this level', '#92000a')
+        write_some(screen, (0, 140), 'Bradley Hand ITC', 30, '-------------------------------------------',
+                   '#92000a')
+        directory = [[(50, 170), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
+                     [(50, 220), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
+                     [(50, 270), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
+                     [(50, 320), 'Bradley Hand ITC', 35, f'Things          {THINGS}']]
+        for i in range(4):
+            write_some(screen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
+                       '#92000a')  # parameters
 
 
 class Second_level:
@@ -106,6 +124,8 @@ class Second_level:
                         arrow.image = image
                         arrow.rect = arrow.image.get_rect()
                         screen.fill(pygame.Color(0, 0, 0))
+                elif event.type == pygame.KEYDOWN or event.type == pygame.K_w:
+                    final('fg')
                 elif event.type == pygame.KEYDOWN or event.type == pygame.K_a:
                     name_images += 1
                     image = load_image(images[name_images % 4])
@@ -162,7 +182,7 @@ if __name__ == '__main__':
     pygame.init()
     size = width, height = 400, 400
     screen = pygame.display.set_mode(size)
-    #restart()
+    # restart()
 
     for_second_level(screen)
 
