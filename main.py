@@ -3,18 +3,21 @@ import pygame.freetype
 from PIL import Image
 import random
 import os
+import datetime
+
 # import pygame_menu as pm
 # import sys
 # from srpiteClass import *
 all_sprites = pygame.sprite.Group()
-ST_mus = 0
-SCREAM_hard = 0
-PASSING_speed = 0
+ST_mus, SCREAM_hard, PASSING_speed = 0, 0, 0
+clock = pygame.time.Clock()
+with open('setings.txt', 'w', encoding='utf-8') as file:
+    file.write('000')
 
 
 def new_window(width, height):
     pygame.init()
-    size = width, height = width, height
+    size = width, height
     screen = pygame.display.set_mode(size)
     screen.fill(pygame.Color(0, 0, 0))
     return screen
@@ -24,14 +27,15 @@ def write_some(scren, coordinates, style, sizi, texty, color):
     font = pygame.font.SysFont(style, sizi)
     text = font.render(texty, True, color)
     scren.blit(text, coordinates)
+    pygame.display.flip()
 
 
 def load_image(name, colorkey=None, size=(10, 10), turn=0):
     img = Image.open(os.path.join('data', name))
     img.thumbnail(size=size)
     img = img.rotate(turn)
-    img.save('picture.jpg')
-    fullname = os.path.join('picture.jpg')
+    img.save('picture.png')
+    fullname = os.path.join('picture.png')
     image = pygame.image.load(fullname)
     if colorkey is not None:
         image = image.convert()
@@ -40,11 +44,12 @@ def load_image(name, colorkey=None, size=(10, 10), turn=0):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
+    pygame.display.flip()
     return image
 
 
 class Sprites(pygame.sprite.Sprite):
-    def __init__(self, *group, colorkey=None, name_file, xy, turn=0, size=(50, 50)):
+    def __init__(self, *group, screen, colorkey=None, name_file, xy, turn=0, size=(50, 50)):
         super().__init__(*group)
         image = load_image(os.path.join(name_file), turn=turn, size=size, colorkey=colorkey)
         self.image = image
@@ -52,18 +57,18 @@ class Sprites(pygame.sprite.Sprite):
         self.rect.x, self.rect.y = xy[0], xy[1]
         all_sprites.draw(screen)
         pygame.display.flip()
+        clock.tick(1000)
 
 
-class Settings:
-    def __init__(self, screen):  # надо сделать так, чтобы когда заново открываются настройки были те же параметры
-        Sprites(all_sprites, name_file='seting.jpg', xy=(535, 0), size=(70, 70))  # наверно надо что-то вернуть
-        self.st_mus = ST_mus
-        self.screem_hard = SCREAM_hard
-        self.passing_speed = PASSING_speed
+class Settings:  # in txt will be settings
+    def __init__(self, screen):
+        Sprites(all_sprites, screen=screen, name_file='seting.jpg', xy=(535, 0), size=(70, 70))
+        self.screen = screen
 
     def settings_view(self):
         screen_set = new_window(600, 400)
-        self.enter(screen_set)
+        line = []
+        write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
         write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
         for i in range(3):
             write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
@@ -71,12 +76,9 @@ class Settings:
             write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
                        ['off / on', 'low / high', 'light / hard'][i], '#92000a')
 
-        self.draw_line(self.st_mus, 350, 420, 380, 165)
-        self.draw_line(self.screem_hard, 355, 460, 390, 235)
-        self.draw_line(self.passing_speed, 380, 490, 420, 305)
-        pygame.display.flip()
-        running1 = True
-        while running1:
+        running = True
+        while running:
+            file1, line = self.file_open()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -84,31 +86,43 @@ class Settings:
                     x, y = pygame.mouse.get_pos()
                     if 300 <= x <= 420 and 120 <= y <= 160:
                         if x <= 350:
-                            self.st_mus = 0
+                            file1.write('0' + str(line[1]) + str(line[2]))
                         elif x >= 380:
-                            self.st_mus = 1
-                        self.draw_line(self.st_mus, 350, 420, 380, 165)
-                        self.play_music(self.st_mus)
+                            file1.write('1' + str(line[1]) + str(line[2]))
+                        file1.close()
+                        file, line = self.file_open()
+                        self.play_music(line[0])
                     elif 300 <= x <= 470 and 190 <= y <= 230:
                         if x <= 355:
-                            self.screem_hard = 0
+                            file1.write(str(line[0]) + '0' + str(line[2]))
                         elif x >= 390:
-                            self.screem_hard = 1
-                        self.draw_line(self.screem_hard, 355, 460, 390, 235)
+                            file1.write(str(line[0]) + '1' + str(line[2]))
+
+                        file1, line = self.file_open()
+                        file1.close()
+
                     elif 300 <= x <= 500 and 260 <= y <= 300:
                         if x <= 380:
-                            self.passing_speed = 0
+                            file1.write(str(line[0]) + str(line[1]) + '0')
                         elif x >= 420:
-                            self.passing_speed = 1
-                        self.draw_line(self.passing_speed, 380, 490, 420, 305)
+                            file1.write(str(line[0]) + str(line[1]) + '1')
+
+                        file1, line = self.file_open()
+                        file1.close()
                     elif 10 <= x <= 50 and 10 <= y <= 35:  # back to the start window
                         screen_set.fill(pygame.Color("black"))
-                        screen.fill(pygame.Color("black"))
+                        self.screen.fill(pygame.Color("black"))
                         Start_window()
-                        return
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        pass
+
+    def file_open(self):
+        file1 = open('setings.txt', 'r+')
+        line = [int(i) for i in file1.read()]
+        file1.seek(0)
+        self.draw_line(line[0], 350, 420, 380, 165)
+        self.draw_line(line[1], 355, 460, 390, 235)
+        pygame.display.flip()
+        self.draw_line(line[2], 380, 490, 420, 305)
+        return file1, line
 
     def play_music(self, state):
         if state:
@@ -122,34 +136,65 @@ class Settings:
         color2 = '#92000a'
         if not state:
             color1, color2 = color2, color1
-        pygame.draw.line(screen, color1, (x1, y), (300, y), 1)
-        pygame.draw.line(screen, color2, (x2, y), (x3, y), 1)
+        pygame.draw.line(self.screen, color1, (x1, y), (300, y), 1)
+        pygame.draw.line(self.screen, color2, (x2, y), (x3, y), 1)
         pygame.display.flip()
-
-    def enter(self, screen):
-        write_some(screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
 
 
 class Start_window:
     def __init__(self):
+        screen = new_window(600, 400)
+        # arrow = make_cursor(screen)
         pygame.font.init()
+        running = True
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
         [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
                     '#92000a') for i in range(2)]
 
         Settings(screen)
-        Sprites(all_sprites, name_file="startovi.jpg", xy=(-40, 150), turn=25, size=(250, 250))
-        Sprites(all_sprites, name_file="ladon.jpg", xy=(400, 300), turn=-45, size=(200, 200))
-        pygame.time.wait(2000)
-        # clock = pygame.time.Clock()  # do that depends on real time? not on wait
-        # start_time = pygame.time.get_ticks()
-        for i in range(random.randrange(2, 4)):
-            turn = random.randrange(1, 70, 5)
-            k = random.randrange(50, 150, 10)
-            size = (k, k)
-            coord = random.choice([(random.randrange(400, 520, 10), random.randrange(110, 250, 10)),
-                                   (random.randrange(100, 350, 10), random.randrange(295, 320, 10))])
-            Sprites(all_sprites, name_file='blood.jpg', xy=coord, turn=turn, size=size)
+        Sprites(all_sprites, screen=screen, name_file="startovi.jpg", xy=(-40, 150), turn=25, size=(250, 250))
+        Sprites(all_sprites, screen=screen, name_file="ladon.jpg", xy=(400, 300), turn=-45, size=(200, 200))
+
+        sec_start = datetime.datetime.now().second
+        flag_drop = True
+
+        while running:
+            pygame.display.flip()
+
+            if datetime.datetime.now().second == sec_start + 5 and flag_drop:
+                flag_drop = False
+                for i in range(random.randrange(2, 3)):
+                    turn = random.randrange(1, 70, 5)
+                    size = random.randrange(50, 150, 10)
+                    coord = random.choice([(random.randrange(400, 520, 10), random.randrange(110, 250, 10)),
+                                           (random.randrange(100, 350, 10), random.randrange(295, 320, 10))])
+                    Sprites(all_sprites, screen=screen, name_file='blood.jpg', xy=coord, turn=turn, size=(size, size))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    print(x, y)
+                    if x >= 535 and y <= 70:  # clicked on settings
+
+                        Settings(screen).settings_view()
+                        # ST_mus, SCREAM_hard, PASSING_speed = Settings(screen).settings_view(ST_mus, SCREAM_hard,
+                        #                                                                     PASSING_speed)
+                        # st_mus, screem_hard, passing_speed = ST_mus, SCREAM_hard, PASSING_speed
+                    elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
+                        Locations().preface()
+                # if event.type == pygame.MOUSEMOTION:
+                #     arrow.topleft = event.pos
+            # screen.fill(pygame.Color("black"))
+            # clock.tick(100)
+            # all_sprites.update()
+
+            # Start_window()
+
+            # if pygame.mouse.get_focused():
+            #     all_sprites.draw(screen)
+            #     pygame.display.flip()
+            # screen.fill(pygame.Color("white"))
 
 
 class Locations:
@@ -162,7 +207,8 @@ class Locations:
         print(start_time)
 
         screen0 = new_window(800, 600)
-
+        fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
+        screen0.blit(fon, (0, 0))
         running = True
 
         while running:
@@ -175,6 +221,10 @@ class Locations:
         pygame.quit()
 
     def preface(self):  # there will be small preface. It will be with pictures
+        screen = new_window(600, 600)
+        fon = pygame.transform.scale(load_image('fon.jpg'), (600, 600))
+        screen.blit(fon, (0, 0))
+        running = True
         self.location0()
 
     def move_poin(self):  # provides 4-sided viewing
@@ -184,52 +234,29 @@ class Locations:
         pass
 
 
-# def make_cursor(screen):
-#     clock = pygame.time.Clock()
-#     all_sprites = pygame.sprite.Group()
-#
-#     image = load_image("cursor.png")
-#     arrow = pygame.sprite.Sprite(all_sprites)
-#     arrow.image = image
-#     arrow.rect = arrow.image.get_rect()
-#     pygame.mouse.set_visible(False)
-#
-#     running = True
-#     while running:
-#         clock.tick(30)
-#         all_sprites.update()
-#         for event in pygame.event.get():
-#             if event.type == pygame.QUIT:
-#                 running = False
-#             if event.type == pygame.MOUSEMOTION:
-#                 arrow.rect.topleft = event.pos
-#         if pygame.mouse.get_focused():
-#             all_sprites.draw(screen)
-#
-#         pygame.display.flip()
-
 
 if __name__ == '__main__':
-    screen = new_window(600, 400)
+    # screen = new_window(600, 400)
     #  Settings(screen).play_music(1)
+    st_mus, screem_hard, passing_speed = 0, 0, 0
     Start_window()
     pygame.display.flip()
-    # make_cursor(screen)
-    running = True
+    # running = True
 
     #  def restart_game
-
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                x, y = pygame.mouse.get_pos()
-                print(x, y)
-                if x >= 535 and y <= 70:  # clicked on settings
-                    Settings(screen).settings_view()
-                elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
-                    Locations().preface()
-        # screen.fill(pygame.Color("white"))
+    #
+    # while running:
+    #     for event in pygame.event.get():
+    #         if event.type == pygame.QUIT:
+    #             running = False
+    #         if event.type == pygame.MOUSEBUTTONDOWN:
+    #             x, y = pygame.mouse.get_pos()
+    #             print(x, y)
+    #             if x >= 535 and y <= 70:  # clicked on settings
+    #                 st_mus, screem_hard, passing_speed = Settings(screen).settings_view(st_mus, screem_hard,
+    #                                                                                     passing_speed)
+    #             elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
+    #                 Locations().preface()
+    # screen.fill(pygame.Color("white"))
 
     pygame.quit()
