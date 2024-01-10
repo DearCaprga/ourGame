@@ -4,12 +4,13 @@ from PIL import Image
 import random
 import os
 import datetime
+import sqlite3
 
 # import pygame_menu as pm
 # import sys
 # from srpiteClass import *
 all_sprites = pygame.sprite.Group()
-ST_mus, SCREAM_hard, PASSING_speed = 0, 0, 0
+LIST = ['start', 'loc0', 'loc1']
 clock = pygame.time.Clock()
 with open('setings.txt', 'w', encoding='utf-8') as file:
     file.write('000')
@@ -23,10 +24,10 @@ def new_window(width, height):
     return screen
 
 
-def write_some(scren, coordinates, style, sizi, texty, color):
-    font = pygame.font.SysFont(style, sizi)
+def write_some(screen, coordinates, style, size, texty, color):
+    font = pygame.font.SysFont(style, size)
     text = font.render(texty, True, color)
-    scren.blit(text, coordinates)
+    screen.blit(text, coordinates)
     pygame.display.flip()
 
 
@@ -61,13 +62,19 @@ class Sprites(pygame.sprite.Sprite):
 
 
 class Settings:  # in txt will be settings
-    def __init__(self, screen):
-        Sprites(all_sprites, screen=screen, name_file='seting.jpg', xy=(535, 0), size=(70, 70))
+    def __init__(self, screen, corner=535, winds='start'):
+        Sprites(all_sprites, screen=screen, colorkey=-1, name_file='seting.jpg', xy=(corner, 0), size=(70, 70))
         self.screen = screen
+        self.corner = corner
+        self.winds = winds
+        print(self.winds)
+
+    def find_set(self, x, y, wind):
+        if x >= self.corner and y <= 70:  # clicked on settings
+            Settings(self.screen, winds=wind).settings_view()
 
     def settings_view(self):
         screen_set = new_window(600, 400)
-        line = []
         write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
         write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
         for i in range(3):
@@ -109,10 +116,12 @@ class Settings:  # in txt will be settings
 
                         file1, line = self.file_open()
                         file1.close()
-                    elif 10 <= x <= 50 and 10 <= y <= 35:  # back to the start window
+                    elif 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
                         screen_set.fill(pygame.Color("black"))
                         self.screen.fill(pygame.Color("black"))
-                        Start_window()
+                        windows(self.winds)
+                        return
+
 
     def file_open(self):
         file1 = open('setings.txt', 'r+')
@@ -144,7 +153,6 @@ class Settings:  # in txt will be settings
 class Start_window:
     def __init__(self):
         screen = new_window(600, 400)
-        # arrow = make_cursor(screen)
         pygame.font.init()
         running = True
         pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
@@ -175,57 +183,84 @@ class Start_window:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     print(x, y)
-                    if x >= 535 and y <= 70:  # clicked on settings
-
-                        Settings(screen).settings_view()
-                        # ST_mus, SCREAM_hard, PASSING_speed = Settings(screen).settings_view(ST_mus, SCREAM_hard,
-                        #                                                                     PASSING_speed)
-                        # st_mus, screem_hard, passing_speed = ST_mus, SCREAM_hard, PASSING_speed
-                    elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
-                        Locations().preface()
-                # if event.type == pygame.MOUSEMOTION:
-                #     arrow.topleft = event.pos
-            # screen.fill(pygame.Color("black"))
-            # clock.tick(100)
-            # all_sprites.update()
-
-            # Start_window()
-
-            # if pygame.mouse.get_focused():
-            #     all_sprites.draw(screen)
-            #     pygame.display.flip()
-            # screen.fill(pygame.Color("white"))
+                    Settings(screen).find_set(x, y, 'start')
+                    if 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
+                        Locations().perface()
+                        return
 
 
-class Locations:
+class Locations:  # write def to print text
     def __init__(self):
         pass
 
+    def perface(self):
+        flag5 = 1
+        flag10 = 1
+        screen = new_window(600, 400)
+        sec_start = datetime.datetime.now().second
+
+        write_some(screen, (200, 150), 'Bernard MT Condensed', 25, 'Как я тут оказался?', 'white')
+        write_some(screen, (70, 177), 'Bernard MT Condensed', 25,
+                   'Голова болит, кажется сильный ушиб, да еще и кровь…', 'white')
+
+        running = True
+        while running:
+            if datetime.datetime.now().second == sec_start + 1 and flag5:
+                screen.fill(pygame.Color("black"))
+                text = 'Я точно помню, как мы решили пойти вместе в ту заброшку :' \
+                       'про которую говорил весь город. Вроде когда-то тут жила :' \
+                       'счастливая семья, но они неожиданно уехали. Никто так и :' \
+                       'не знает истинной причины, но каждый старался придумать :' \
+                       'свою легенду. '.split(':')
+                for i in range(5):
+                    write_some(screen, (40, 130 + 27 * i), 'Bernard MT Condensed', 25, text[i], 'white')
+                flag5 = 0
+            # this comm in ban because of future def 👀
+            # I think it will be more correct to use 2 different 'if' because there are only 2 things
+            if datetime.datetime.now().second == sec_start + 2 and flag10:
+                screen.fill(pygame.Color('black'))
+                text = 'Ничего… больше ничего не помню, почему я здесь:' \
+                       'один, кто меня ударил и как отсюда выбраться?:' \
+                       'Нельзя медлить, иначе будет хуже.'.split(':')
+                for i in range(3):
+                    write_some(screen, (80, 150 + 27 * i), 'Bernard MT Condensed', 25, text[i], 'white')
+                flag10 = 0
+            if datetime.datetime.now().second == sec_start + 3:
+                self.location0()
+                return
+
     def location0(self):  # for insructins
         clock = pygame.time.Clock()
-        start_time = pygame.time.get_ticks()
+        start_time = datetime.datetime.now()
         print(start_time)
-
-        screen0 = new_window(800, 600)
-        fon = pygame.transform.scale(load_image('fon.jpg'), (800, 600))
-        screen0.blit(fon, (0, 0))
+        screen0 = new_window(800, 560)
         running = True
-
+        Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
+        Settings(screen0, 735, 'loc0')
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
+                    Settings(screen0, 735, 'loc0').find_set(x, y, 'loc0')
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        pass
+                    elif event.key == pygame.K_RIGHT:
+                        pass
+                    elif event.key == pygame.K_DOWN:
+                        pass
+                    elif event.key == pygame.K_UP:
+                        pass
+
+
+
+
+# Don`t work return to the main window, because of def view_settings last lines.
+# It`s necessary to look out mistake in list of def
 
         pygame.quit()
-
-    def preface(self):  # there will be small preface. It will be with pictures
-        screen = new_window(600, 600)
-        fon = pygame.transform.scale(load_image('fon.jpg'), (600, 600))
-        screen.blit(fon, (0, 0))
-        running = True
-        self.location0()
 
     def move_poin(self):  # provides 4-sided viewing
         pass
@@ -233,30 +268,31 @@ class Locations:
     def click_thing(self):  # bring the pressed item closer
         pass
 
+    def location1(self):
+        start_time = datetime.datetime.now()
+        print(start_time)
+        screen1 = new_window(800, 560)
+        running = True
+        Sprites(all_sprites, screen=screen1, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
+        Sprites(all_sprites, colorkey=-1, screen=screen1, name_file='book.png', xy=(690, 10), turn=0, size=(50, 50))
+
+
+def windows(wind):
+    if wind == 'start':
+        Start_window()
+        print(-1)
+    elif wind == 'loc0':
+        Locations().location0()
+        print(0)
+    elif wind == 'loc1':
+        Locations().location1()
+        print(1)
 
 
 if __name__ == '__main__':
-    # screen = new_window(600, 400)
-    #  Settings(screen).play_music(1)
-    st_mus, screem_hard, passing_speed = 0, 0, 0
     Start_window()
     pygame.display.flip()
-    # running = True
-
-    #  def restart_game
-    #
-    # while running:
-    #     for event in pygame.event.get():
-    #         if event.type == pygame.QUIT:
-    #             running = False
-    #         if event.type == pygame.MOUSEBUTTONDOWN:
-    #             x, y = pygame.mouse.get_pos()
-    #             print(x, y)
-    #             if x >= 535 and y <= 70:  # clicked on settings
-    #                 st_mus, screem_hard, passing_speed = Settings(screen).settings_view(st_mus, screem_hard,
-    #                                                                                     passing_speed)
-    #             elif 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
-    #                 Locations().preface()
-    # screen.fill(pygame.Color("white"))
-
     pygame.quit()
+
+
+
