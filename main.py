@@ -24,11 +24,18 @@ def new_window(width, height):
     return screen
 
 
-def write_some(screen, coordinates, style, size, texty, color):
+def write_some(screen, coordinates, style='Bernard MT Condensed', size=25, texty='', color='white'):
     font = pygame.font.SysFont(style, size)
     text = font.render(texty, True, color)
     screen.blit(text, coordinates)
     pygame.display.flip()
+
+
+def write_text(screen, coordinates, style='Bernard MT Condensed', size=25, text='', color='white'):
+    kol = text.count(':')
+    text = text.split(':')
+    for i in range(kol + 1):
+        write_some(screen, (coordinates[0], coordinates[1] + (size + 2) * i), style, size, text[i], color)
 
 
 def load_image(name, colorkey=None, size=(10, 10), turn=0):
@@ -199,9 +206,8 @@ class Locations:  # write def to print text
         screen = new_window(600, 400)
         sec_start = datetime.datetime.now().second
 
-        write_some(screen, (200, 150), 'Bernard MT Condensed', 25, 'Как я тут оказался?', 'white')
-        write_some(screen, (70, 177), 'Bernard MT Condensed', 25,
-                   'Голова болит, кажется сильный ушиб, да еще и кровь…', 'white')
+        write_some(screen, (200, 150), texty='Как я тут оказался?')
+        write_some(screen, (70, 177), texty='Голова болит, кажется сильный ушиб, да еще и кровь…')
 
         running = True
         while running:
@@ -211,9 +217,8 @@ class Locations:  # write def to print text
                        'про которую говорил весь город. Вроде когда-то тут жила :' \
                        'счастливая семья, но они неожиданно уехали. Никто так и :' \
                        'не знает истинной причины, но каждый старался придумать :' \
-                       'свою легенду. '.split(':')
-                for i in range(5):
-                    write_some(screen, (40, 130 + 27 * i), 'Bernard MT Condensed', 25, text[i], 'white')
+                       'свою легенду. '
+                write_text(screen, coordinates=(40, 130), text=text)
                 flag5 = 0
             # this comm in ban because of future def 👀
             # I think it will be more correct to use 2 different 'if' because there are only 2 things
@@ -221,9 +226,8 @@ class Locations:  # write def to print text
                 screen.fill(pygame.Color('black'))
                 text = 'Ничего… больше ничего не помню, почему я здесь:' \
                        'один, кто меня ударил и как отсюда выбраться?:' \
-                       'Нельзя медлить, иначе будет хуже.'.split(':')
-                for i in range(3):
-                    write_some(screen, (80, 150 + 27 * i), 'Bernard MT Condensed', 25, text[i], 'white')
+                       'Нельзя медлить, иначе будет хуже.'
+                write_text(screen, coordinates=(80, 150), text=text)
                 flag10 = 0
             if datetime.datetime.now().second == sec_start + 3:
                 self.location0()
@@ -253,9 +257,6 @@ class Locations:  # write def to print text
                         pass
                     elif event.key == pygame.K_UP:
                         pass
-
-
-
 
 # Don`t work return to the main window, because of def view_settings last lines.
 # It`s necessary to look out mistake in list of def
