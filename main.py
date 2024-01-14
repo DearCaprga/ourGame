@@ -4,6 +4,7 @@ import os
 import sys
 import random
 
+
 all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
@@ -45,16 +46,17 @@ class Sprites(pygame.sprite.Sprite):
 
 def restart():
     screen.fill(pygame.Color(0, 0, 0))
-    # Start_window()
+    #Start_window()
     ALL_TIMER = 0
     HEALTH = 100
     COUNT_LEVEL = 0
-    THINGS = 0
+    THINGS = []
+    TIMER = 0
 
 
-def for_final_window(screen):
+def for_final_window():
     if ALL_TIMER > 30 or HEALTH == 0 or COUNT_LEVEL == 3:
-        open_window = Final_window(screen)
+        open_window = Final_window()
         return True
     return False
 
@@ -68,19 +70,25 @@ def terminate():
     sys.exit()
 
 
+def update_all_timer():
+    ALL_TIMER += 1
+
+
+def update_timer():
+    TIMER += 1
+
+
 def write_some(screen, coordinates, style, sizi, texty, color):
     font = pygame.font.SysFont(style, sizi)
     text = font.render(texty, True, pygame.Color(color))
     screen.blit(text, coordinates)
 
 
-COUNT_MED = 0
-
-
-def final(str):
-    if COUNT_MED == 3:
+def final():
+    screen = new_window(500, 500)
+    if 'h2o' in THINGS and 'hclo4' in THINGS and 'fe' in THINGS:
         COUNT_LEVEL += 1
-        screen = new_window(500, 500)
+        write_some(screen, (5, 10), 'Bradley Hand ITC', 10, f'You have collected the right ingredients and prepared the right medicine that cured you of a dog bite', '#92000a')
         write_some(screen, (50, 70), 'Bradley Hand ITC', 30, f'You complete this level', '#92000a')
         write_some(screen, (0, 140), 'Bradley Hand ITC', 30, '-------------------------------------------',
                    '#92000a')
@@ -91,10 +99,16 @@ def final(str):
         for i in range(4):
             write_some(screen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
                        '#92000a')  # parameters
+    else:
+        write_some(screen, (10, 70), 'Bradley Hand ITC', 10, f'You did not collect the necessary components and died from a dog bite', '#92000a')
+        HEALTH = 0
+        for_final_window()
 
 
 class Second_level:
     def __init__(self):
+        image_now = ''
+        book_list = 1
         screen = new_window(500, 500)
         images = ['im21.jpg', 'im22.jpg', '23.jpg', '24.jpg']
         name_images = 0
@@ -103,56 +117,87 @@ class Second_level:
         arrow = pygame.sprite.Sprite(all_sprites)
         arrow.image = image
         arrow.rect = arrow.image.get_rect()
-        while True:
+        running = True
+        while running:
+            #if TIMER > 1000000000:
+            #    running = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    terminate()
+                    running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
-                    if 10 < x > 100 and 120 < y < 300:
-                        image = load_image('im_lek.jpg')
+                    if 267 < x < 302 and 102 < y < 152 and images[name_images % 4] == '24.jpg':
+                        image = load_image('book0.jpg')
                         image = pygame.transform.scale(image, (500, 500))
                         arrow = pygame.sprite.Sprite(all_sprites)
                         arrow.image = image
                         arrow.rect = arrow.image.get_rect()
-                        screen.fill(pygame.Color(0, 0, 0))
-                        write_some(screen, (10, 100), 'Bradley Hand ITC', 50, f'Выберете 3 бутылки', '#92000a')
-                        clock.tick(10)
-                        image = load_image('im_lek.jpg')
+                        image_now = 'book0.jpg'
+                    if 63 < x < 456 and 79 < y < 429 and image_now == 'book0.jpg':
+                        image = load_image(f'book{book_list % 8}.jpg')
                         image = pygame.transform.scale(image, (500, 500))
                         arrow = pygame.sprite.Sprite(all_sprites)
                         arrow.image = image
                         arrow.rect = arrow.image.get_rect()
+                        if 250 < x < 500:
+                            book_list += 1
+                        else:
+                            book_list -= 1
+                    if 90 < x < 191 and 139 < y < 220 and images[name_images % 4] == 'im21.jpg':
+                        image = load_image('im_lek1.jpg')
+                        image = pygame.transform.scale(image, (500, 500))
+                        arrow = pygame.sprite.Sprite(all_sprites)
+                        arrow.image = image
+                        arrow.rect = arrow.image.get_rect()
+                        image_now = 'im_lek1.jpg'
+                    if len(THINGS) < 4:
+                        if 118 < x < 138 and 62 < y < 134 and image_now == 'im_lek1.jpg':
+                            THINGS.append('h2o')
+                        if 118 < x < 138 and 62 < y < 134 and image_now == 'im_lek1.jpg':
+                            THINGS.append('fe')
+                        if 352 < x < 395 and 29 < y < 160 and image_now == 'im_lek1.jpg':
+                            THINGS.append('hclo4')
+                        if 180 < x < 196 and 107 < y < 137 and image_now == 'im_lek1.jpg':
+                            THINGS.append('cu')
+                        if 207 < x < 224 and 80 < y < 142 and image_now == 'im_lek1.jpg':
+                            THINGS.append('zn')
+                        if 229 < x < 245 and 123 < y < 145 and image_now == 'im_lek1.jpg':
+                            THINGS.append('be')
+                        if 49 < x < 90 and 309 < y < 385 and image_now == 'im_lek1.jpg':
+                            THINGS.append('кровь человеческая')
+                        if 94 < x < 111 and 425 < y < 460 and image_now == 'im_lek1.jpg':
+                            THINGS.append('cl')
+                        if 29 < x < 57 and 377 < y < 461 and image_now == 'im_lek1.jpg':
+                            THINGS.append('cm')
+                    else:
+                        print(1)
                         screen.fill(pygame.Color(0, 0, 0))
-                elif event.type == pygame.KEYDOWN or event.type == pygame.K_w:
-                    final('fg')
-                elif event.type == pygame.KEYDOWN or event.type == pygame.K_a:
-                    name_images += 1
-                    image = load_image(images[name_images % 4])
-                    image = pygame.transform.scale(image, (500, 500))
-                    arrow = pygame.sprite.Sprite(all_sprites)
-                    arrow.image = image
-                    arrow.rect = arrow.image.get_rect()
-                elif event.type == pygame.KEYDOWN or event.type == pygame.K_s:
-                    image = load_image(images[name_images % 4])
-                    image = pygame.transform.scale(image, (500, 500))
-                    arrow = pygame.sprite.Sprite(all_sprites)
-                    arrow.image = image
-                    arrow.rect = arrow.image.get_rect()
-                elif event.type == pygame.KEYDOWN or event.type == pygame.K_d:
-                    name_images -= 1
-                    image = load_image(images[name_images % 4])
-                    arrow = pygame.sprite.Sprite(all_sprites)
-                    arrow.image = image
-                    arrow.rect = arrow.image.get_rect()
-
+                        final()
+                        running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_a:
+                        name_images += 1
+                        image = load_image(images[name_images % 4])
+                        image = pygame.transform.scale(image, (500, 500))
+                        arrow = pygame.sprite.Sprite(all_sprites)
+                        arrow.image = image
+                        arrow.rect = arrow.image.get_rect()
+                    elif event.key == pygame.K_d:
+                        name_images -= 1
+                        image = load_image(images[name_images % 4])
+                        image = pygame.transform.scale(image, (500, 500))
+                        arrow = pygame.sprite.Sprite(all_sprites)
+                        arrow.image = image
+                        arrow.rect = arrow.image.get_rect()
             screen.fill(pygame.Color(0, 0, 0))
             all_sprites.draw(screen)
             pygame.display.flip()
+            #update_timer()
 
 
 class Final_window:
-    def __init__(self, screen):
+    def __init__(self):
+        screen = new_window(400, 400)
         directory = []
         if ALL_TIMER > 30:
             directory = [[(90, 10), 'Chiller', 50, 'You fall'],
@@ -182,9 +227,9 @@ if __name__ == '__main__':
     pygame.init()
     size = width, height = 400, 400
     screen = pygame.display.set_mode(size)
-    # restart()
+    #restart()
 
-    for_second_level(screen)
+    #for_second_level(screen)
 
     pygame.display.flip()
 
