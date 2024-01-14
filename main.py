@@ -1,10 +1,10 @@
 import pygame
-import pygame.freetype
+# import pygame.freetype
 from PIL import Image
 import random
 import os
 import datetime
-import sqlite3
+# import sqlite3
 
 # import pygame_menu as pm
 # import sys
@@ -167,6 +167,7 @@ class Start_window:
                     '#92000a') for i in range(2)]
 
         Settings(screen)
+
         Sprites(all_sprites, screen=screen, name_file="startovi.jpg", xy=(-40, 150), turn=25, size=(250, 250))
         Sprites(all_sprites, screen=screen, name_file="ladon.jpg", xy=(400, 300), turn=-45, size=(200, 200))
 
@@ -196,6 +197,36 @@ class Start_window:
                         return
 
 
+class Rules:
+    def __init__(self, screen, wind, x=690):
+        Sprites(all_sprites, colorkey=-1, screen=screen, name_file='book.png', xy=(x, 10), turn=0, size=(50, 50))
+        self.screen = screen
+        self.winds = wind
+
+    def rules_view(self):
+        screen_rules = new_window(600, 400)
+        write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
+        write_some(screen_rules, (180, 20), 'Bradley Hand ITC', 50, 'Rules guide', '#92000a')
+        text = ' - Чтобы передвинуть обзор на следующую стену,:нажмите кнопки <-, -> на клавиатуре:' \
+               ' - Чтобы узнать больше о предмете, на него надо:"нажать" мышкой или навести курсор и нажать Q:' \
+               ' - При длительном общении с непонятными челиками :теряется здоровье:' \
+               ' - Если таймер закончится до конца прохождения, :то игра завершится'
+        write_text(screen_rules, (80, 120), text=text)
+
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    if 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
+                        screen_rules.fill(pygame.Color("black"))
+                        self.screen.fill(pygame.Color("black"))
+                        windows(self.winds)
+                        return
+
+
 class Locations:  # write def to print text
     def __init__(self):
         pass
@@ -207,7 +238,7 @@ class Locations:  # write def to print text
         sec_start = datetime.datetime.now().second
 
         write_some(screen, (200, 150), texty='Как я тут оказался?')
-        write_some(screen, (70, 177), texty='Голова болит, кажется сильный ушиб, да еще и кровь…')
+        write_some(screen, (130, 177), texty='Голова болит, кажется сильный ушиб…')
 
         running = True
         while running:
@@ -233,25 +264,34 @@ class Locations:  # write def to print text
                 self.location0()
                 return
 
+# room - wall(picture), predmets(picture with collide def)
+
     def location0(self):  # for insructins
         clock = pygame.time.Clock()
+        clock.tick(900)
         start_time = datetime.datetime.now()
         print(start_time)
         screen0 = new_window(800, 560)
         running = True
+        flag_key = 1
         Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
+        Rules(screen0, 'loc0')
         Settings(screen0, 735, 'loc0')
         while running:
+            Sprites(all_sprites, screen=screen0, name_file='mirror.png', xy=(100, 300), turn=0, size=(100, 100), colorkey=-1)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     Settings(screen0, 735, 'loc0').find_set(x, y, 'loc0')
+                    Rules(screen0, 'loc0').rules_view()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
+                        flag_key = 0
                         pass
                     elif event.key == pygame.K_RIGHT:
+                        flag_key = 0
                         pass
                     elif event.key == pygame.K_DOWN:
                         pass
