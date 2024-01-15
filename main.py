@@ -4,6 +4,7 @@ from PIL import Image
 import random
 import os
 import datetime
+
 # import sqlite3
 
 # import pygame_menu as pm
@@ -52,7 +53,6 @@ def load_image(name, colorkey=None, size=(10, 10), turn=0):
         image.set_colorkey(colorkey)
     else:
         image = image.convert_alpha()
-    pygame.display.flip()
     return image
 
 
@@ -128,7 +128,6 @@ class Settings:  # in txt will be settings
                         self.screen.fill(pygame.Color("black"))
                         windows(self.winds)
                         return
-
 
     def file_open(self):
         file1 = open('setings.txt', 'r+')
@@ -264,21 +263,44 @@ class Locations:  # write def to print text
                 self.location0()
                 return
 
-# room - wall(picture), predmets(picture with collide def)
+    # room - wall(picture), predmets(picture with collide def)
 
     def location0(self):  # for insructins
         clock = pygame.time.Clock()
         clock.tick(900)
         start_time = datetime.datetime.now()
         print(start_time)
+
         screen0 = new_window(800, 560)
         running = True
-        flag_key = 1
+        wall = 0
         Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
         Rules(screen0, 'loc0')
         Settings(screen0, 735, 'loc0')
         while running:
-            Sprites(all_sprites, screen=screen0, name_file='mirror.png', xy=(100, 300), turn=0, size=(100, 100), colorkey=-1)
+            pygame.display.flip()
+            if wall == 0:
+                Sprites(all_sprites, screen=screen0, name_file='broke_window0.png', xy=(40, 50), turn=0,
+                        size=(400, 400),
+                        colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='table.png', xy=(350, 250), turn=0, size=(400, 400),
+                        colorkey=-1)
+            elif wall == 1:
+                Sprites(all_sprites, screen=screen0, name_file='wardrobe.png', xy=(40, 50), turn=0,
+                        size=(400, 400),
+                        colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='wardrobe.png', xy=(40, 50), turn=0,
+                        size=(400, 400),
+                        colorkey=-1)
+            elif wall == 2:
+                Sprites(all_sprites, screen=screen0, name_file='broke_window.png', xy=(40, 50), turn=0,
+                        size=(400, 400),
+                        colorkey=-1)
+            elif wall == 3:
+                Sprites(all_sprites, screen=screen0, name_file='picture.jpg', xy=(40, 50), turn=0,
+                        size=(400, 400),
+                        colorkey=-1)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -288,18 +310,19 @@ class Locations:  # write def to print text
                     Rules(screen0, 'loc0').rules_view()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
-                        flag_key = 0
-                        pass
+                        if wall > 0:
+                            wall = wall - 1
+                        else:
+                            wall = 3
                     elif event.key == pygame.K_RIGHT:
-                        flag_key = 0
-                        pass
+                        wall = (wall + 1) % 4
                     elif event.key == pygame.K_DOWN:
                         pass
                     elif event.key == pygame.K_UP:
                         pass
 
-# Don`t work return to the main window, because of def view_settings last lines.
-# It`s necessary to look out mistake in list of def
+        # Don`t work return to the main window, because of def view_settings last lines.
+        # It`s necessary to look out mistake in list of def
 
         pygame.quit()
 
@@ -334,6 +357,3 @@ if __name__ == '__main__':
     Start_window()
     pygame.display.flip()
     pygame.quit()
-
-
-
