@@ -13,6 +13,10 @@ with open('setings.txt', 'w', encoding='utf-8') as file:
     file.write('000')
 
 
+# write def for back button
+# write def for sprite in walls
+
+
 def new_window(width, height):
     pygame.init()
     size = width, height
@@ -60,8 +64,47 @@ class Sprites(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = xy[0], xy[1]
         all_sprites.draw(screen)
-        pygame.display.flip()
         clock.tick(1000)
+
+
+class Start_window:
+    def __init__(self):
+        screen = new_window(600, 400)
+        pygame.font.init()
+        running = True
+        pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
+        [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
+                    '#92000a') for i in range(2)]
+
+        Settings(screen, wall=0)
+
+        Sprites(all_sprites, screen=screen, name_file="startovi.jpg", xy=(-40, 150), turn=25, size=(250, 250))
+        Sprites(all_sprites, screen=screen, name_file="ladon.jpg", xy=(400, 300), turn=-45, size=(200, 200))
+
+        sec_start = datetime.datetime.now().second
+        flag_drop = True
+
+        while running:
+            pygame.display.flip()
+
+            if datetime.datetime.now().second == sec_start + 5 and flag_drop:
+                flag_drop = False
+                for i in range(random.randrange(2, 3)):
+                    turn = random.randrange(1, 70, 5)
+                    size = random.randrange(50, 150, 10)
+                    coord = random.choice([(random.randrange(400, 520, 10), random.randrange(110, 250, 10)),
+                                           (random.randrange(100, 350, 10), random.randrange(295, 320, 10))])
+                    Sprites(all_sprites, screen=screen, name_file='blood.jpg', xy=coord, turn=turn, size=(size, size))
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    print(x, y)
+                    Settings(screen, wall=0).find_set(x, y, 'start', wall=0)
+                    if 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
+                        Locations().perface()
+                        return
 
 
 class Settings:  # in txt will be settings
@@ -154,46 +197,6 @@ class Settings:  # in txt will be settings
         pygame.display.flip()
 
 
-class Start_window:
-    def __init__(self):
-        screen = new_window(600, 400)
-        pygame.font.init()
-        running = True
-        pygame.draw.rect(screen, '#92000a', pygame.Rect(210, 190, 160, 90), 2, 20)
-        [write_some(screen, [(130, 40), (230, 190)][i], 'Chiller', 90 - 20 * i, ['Original name', 'Start!'][i],
-                    '#92000a') for i in range(2)]
-
-        Settings(screen, wall=0)
-
-        Sprites(all_sprites, screen=screen, name_file="startovi.jpg", xy=(-40, 150), turn=25, size=(250, 250))
-        Sprites(all_sprites, screen=screen, name_file="ladon.jpg", xy=(400, 300), turn=-45, size=(200, 200))
-
-        sec_start = datetime.datetime.now().second
-        flag_drop = True
-
-        while running:
-            pygame.display.flip()
-
-            if datetime.datetime.now().second == sec_start + 5 and flag_drop:
-                flag_drop = False
-                for i in range(random.randrange(2, 3)):
-                    turn = random.randrange(1, 70, 5)
-                    size = random.randrange(50, 150, 10)
-                    coord = random.choice([(random.randrange(400, 520, 10), random.randrange(110, 250, 10)),
-                                           (random.randrange(100, 350, 10), random.randrange(295, 320, 10))])
-                    Sprites(all_sprites, screen=screen, name_file='blood.jpg', xy=coord, turn=turn, size=(size, size))
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    print(x, y)
-                    Settings(screen, wall=0).find_set(x, y, 'start', wall=0)
-                    if 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
-                        Locations().perface()
-                        return
-
-
 class Rules:
     def __init__(self, screen, wind, wall, x=690):
         Sprites(all_sprites, colorkey=-1, screen=screen, name_file='book.png', xy=(x, 10), turn=0, size=(50, 50))
@@ -212,8 +215,9 @@ class Rules:
         text = ' - Чтобы передвинуть обзор на следующую стену,:нажмите кнопки <-, -> на клавиатуре:' \
                ' - Чтобы узнать больше о предмете, на него надо:"нажать" мышкой или навести курсор и нажать Q:' \
                ' - При длительном общении с непонятными челиками :теряется здоровье:' \
-               ' - Если таймер закончится до конца прохождения, :то игра завершится'
-        write_text(screen_rules, (80, 120), text=text)
+               ' - Если таймер закончится до конца прохождения, :то игра завершится:' \
+               ' - Если где-то надо ввести текст, то ничего нажимать: не надо, просто печатайте.'
+        write_text(screen_rules, (80, 100), text=text)
 
         running = True
         while running:
@@ -274,68 +278,110 @@ class Locations:
 
         screen0 = new_window(800, 560)
         running = True
-        Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
-        Rules(screen0, 'loc0', wall=wall)
-        Settings(screen0, wall, 735, 'loc0')
+        text_input = ''
         while running:
             pygame.display.flip()
+            Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
+            Rules(screen0, 'loc0', wall=wall)
+            Settings(screen0, wall, 735, 'loc0')
             if wall == 0:
+                text_input = ''
                 Sprites(all_sprites, screen=screen0, name_file='broke_window0.png', xy=(40, 50), turn=0,
-                        size=(400, 400),
-                        colorkey=-1)
+                        size=(400, 400), colorkey=-1)
                 Sprites(all_sprites, screen=screen0, name_file='table.png', xy=(350, 250), turn=0, size=(400, 400),
                         colorkey=-1)
             elif wall == 1:
+                text_input = ''
                 Sprites(all_sprites, screen=screen0, name_file='wardrobe.png', xy=(40, 50), turn=0,
-                        size=(400, 400),
-                        colorkey=-1)
+                        size=(400, 400), colorkey=-1)
                 Sprites(all_sprites, screen=screen0, name_file='armchair.png', xy=(400, 200), turn=0,
-                        size=(300, 300),
-                        colorkey=-1)
+                        size=(300, 300), colorkey=-1)
             elif wall == 2:
+                text_input = ''
                 Sprites(all_sprites, screen=screen0, name_file='eyes.png', xy=(40, 50), turn=0,
-                        size=(400, 400),
-                        colorkey=-1)
+                        size=(400, 400), colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='firewood.png', xy=(300, 300), turn=0,
+                        size=(400, 400), colorkey=-1)
             elif wall == 3:
-                Sprites(all_sprites, screen=screen0, name_file='tv.png', xy=(40, 50), turn=0,
-                        size=(400, 400),
-                        colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='tv.png', xy=(450, 300), turn=0,
+                        size=(200, 200), colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='door.png', xy=(80, 20), turn=0,
+                        size=(400, 400), colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='frame.png', xy=(280, 180), turn=0,
+                        size=(120, 120), colorkey=-1)
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
+                    print(x, y)
                     Settings(screen0, wall, 735, 'loc0').find_set(x, y, 'loc0', wall=wall)
                     Rules(screen0, 'loc0', wall=wall).find_rules(x, y, 'loc0')
+                    if wall == 0:
+                        if 168 <= x <= 287 and 129 <= y <= 298:
+                            click_thing(screen0, wall, '')
+                            return
+                        elif 375 <= x <= 440 and 319 <= y <= 398:
+                            print('left table')
+                        elif 599 <= x <= 689 and 345 <= y <= 438:
+                            print('right table')
+                    if wall == 1:
+                        if 64 <= x <= 328 and 69 <= y <= 416:
+                            print('wardrobe hi')
+                        elif 429 <= x <= 670 and 230 <= y <= 408:
+                            print('armchair')
+
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        if wall > 0:
-                            wall -= 1
-                        else:
-                            wall = 3
-                    elif event.key == pygame.K_RIGHT:
-                        wall = (wall + 1) % 4
-                    elif event.key == pygame.K_DOWN:
-                        pass
-                    elif event.key == pygame.K_UP:
-                        pass
+                    if wall == 3:  # input code
+                        inp = event.unicode
+                        if len(text_input) < 4 and inp.isdigit():
+                            text_input += inp
+                        print(text_input)
+                    wall = move_poin(event, wall)
+
+            write_some(screen0, (300, 200), texty=' '.join(list(text_input)), size=40)
 
         pygame.quit()
 
-    def location1(self, wall):
-        start_time = datetime.datetime.now()
-        print(start_time)
-        screen1 = new_window(800, 560)
-        running = True
-        Sprites(all_sprites, screen=screen1, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
-        Sprites(all_sprites, colorkey=-1, screen=screen1, name_file='book.png', xy=(690, 10), turn=0, size=(50, 50))
 
-    def move_poin(self):  # provides 4-sided viewing
-        pass
+def click_thing(screen, wall, thing, wind='loc0', sprites=[]):  # bring the pressed item closer
+    screen_th = new_window(600, 400)
+    print('reel window')
+    write_some(screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
+    if sprites:
+        Sprites(all_sprites, screen=sprites[0], name_file=sprites[1], xy=sprites[2], turn=0, size=sprites[3],
+                colorkey=-1)
+    write_text(screen, (100, 100),
+               text='Окно такое смешное, я выпал: :Окно так заколочено, что выбраться из него будет очень трудно.')
 
-    def click_thing(self):  # bring the pressed item closer
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = pygame.mouse.get_pos()
+                if 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
+                    screen_th.fill(pygame.Color("black"))
+                    screen.fill(pygame.Color("black"))
+                    windows(wind, wall)
+                    print('Buy')
+                    return
+
+
+def move_poin(event, wall):  # provides 4-sided viewing
+    if event.key == pygame.K_LEFT:
+        if wall > 0:
+            wall -= 1
+        else:
+            wall = 3
+    elif event.key == pygame.K_RIGHT:
+        wall = (wall + 1) % 4
+    elif event.key == pygame.K_DOWN:
         pass
+    return wall
+
 
 def windows(wind, wall):
     if wind == 'start':
@@ -344,9 +390,9 @@ def windows(wind, wall):
     elif wind == 'loc0':
         Locations().location0(wall)
         print(0)
-    elif wind == 'loc1':
-        Locations().location1(wall)
-        print(1)
+    # elif wind == 'loc1':
+    #     Locations().location1(wall)
+    #     print(1)
 
 
 if __name__ == '__main__':
