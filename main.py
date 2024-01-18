@@ -5,6 +5,23 @@ import sys
 import random
 
 
+def load_image(name, color_key=None):
+    fullname = os.path.join('data', name)
+    try:
+        image = pygame.image.load(fullname).convert()
+    except pygame.error as message:
+        print('Cannot load image:', name)
+        raise SystemExit(message)
+
+    if color_key is not None:
+        if color_key == -1:
+            color_key = image.get_at((0, 0))
+        image.set_colorkey(color_key)
+    else:
+        image = image.convert_alpha()
+    return image
+
+
 all_sprites = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
@@ -17,20 +34,7 @@ def new_window(width, height):
     return screen
 
 
-def load_image(name, colorkey=None):
-    fullname = os.path.join('data', name)
-    if not os.path.isfile(fullname):
-        print(f"Файл с изображением '{fullname}' не найден")
-        sys.exit()
-    image = pygame.image.load(fullname)
-    if colorkey is not None:
-        image = image.convert()
-        if colorkey == -1:
-            colorkey = image.get_at((0, 0))
-        image.set_colorkey(colorkey)
-    else:
-        image = image.convert_alpha()
-    return image
+
 
 
 class Sprites(pygame.sprite.Sprite):
@@ -47,15 +51,15 @@ class Sprites(pygame.sprite.Sprite):
 def restart():
     screen.fill(pygame.Color(0, 0, 0))
     #Start_window()
-    ALL_TIMER = 0
-    HEALTH = 100
-    COUNT_LEVEL = 0
-    THINGS = []
-    TIMER = 0
+ALL_TIMER = 90
+HEALTH = 40
+COUNT_LEVEL = 3
+THINGS = []
+TIMER = 0
 
 
 def for_final_window():
-    if ALL_TIMER > 30 or HEALTH == 0 or COUNT_LEVEL == 3:
+    if ALL_TIMER > 500 or HEALTH == 0 or COUNT_LEVEL == 3:
         open_window = Final_window()
         return True
     return False
@@ -105,11 +109,20 @@ def final():
         for_final_window()
 
 
+def something(number_of_level): # preface to the beginning of the level
+    screen = new_window(500, 500)
+    with open(f'{number_of_level}.txt') as f:
+        for i in f:
+            write_some(screen, (10, 70), 'Bradley Hand ITC', 10, i, '#92000a')
+
+
 class Second_level:
     def __init__(self):
         image_now = ''
         book_list = 1
         screen = new_window(500, 500)
+        something(2)
+        clock.tick(8000)
         images = ['im21.jpg', 'im22.jpg', '23.jpg', '24.jpg']
         name_images = 0
         image = load_image(images[name_images % 4])
@@ -123,7 +136,7 @@ class Second_level:
             #    running = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     if 267 < x < 302 and 102 < y < 152 and images[name_images % 4] == '24.jpg':
@@ -195,11 +208,12 @@ class Second_level:
             #update_timer()
 
 
+
 class Final_window:
     def __init__(self):
         screen = new_window(400, 400)
         directory = []
-        if ALL_TIMER > 30:
+        if ALL_TIMER > 500:
             directory = [[(90, 10), 'Chiller', 50, 'You fall'],
                          [(30, 60), 'Bradley Hand ITC', 'You thought to long...'],
                          [(30, 100), 'Bradley Hand ITC', 30, 'So you were killed']]
@@ -217,23 +231,59 @@ class Final_window:
         directory = [[(50, 170), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
                      [(50, 220), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
                      [(50, 270), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
-                     [(50, 320), 'Bradley Hand ITC', 35, f'Things          {THINGS}']]
+                     [(50, 320), 'Bradley Hand ITC', 35, f'Things          {len(THINGS)}']]
         for i in range(4):
             write_some(screen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
                        '#92000a')  # parameters
 
 
+def animation(width_pic, height_pic, fps, name_pic, position=(0, 0)):
+    all_shot = width_pic * height_pic
+    timer = pygame.time.Clock()
+    frames = []
+    screen = pygame.display.set_mode((500, 500))
+    image = pygame.image.load(name_pic)
+    width, height = image.get_size()
+    w_each, h_each = width / width_pic, height / height_pic
+    shot = 0
+    for j in range(int(height / h_each)):
+        for i in range(int(width / w_each)):
+            frames.append(image.subsurface(pygame.Rect(w_each * i, shot, w_each, h_each)))
+        shot += int(h_each)
+    number = 0
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                running = False
+                something(2)
+                clock.tick(100000)
+                for_second_level(new_window(500, 500))
+        screen.fill((0, 0, 0))
+        number += 1
+        number %= all_shot
+        screen.blit(frames[number], position)
+
+        pygame.display.update()
+        timer.tick(fps)
+
+
+animation(17, 1, 50, "image_anima.jpg", (0, 0))
+
 if __name__ == '__main__':
     pygame.init()
-    size = width, height = 400, 400
-    screen = pygame.display.set_mode(size)
-    #restart()
+    running = True
 
-    #for_second_level(screen)
+    while running:
+        # restart()
+        # for_final_window()
 
-    pygame.display.flip()
+        pygame.display.flip()
 
-    while pygame.event.wait().type != pygame.QUIT:
-        pass
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                terminate()
 
     pygame.quit()
