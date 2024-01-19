@@ -9,8 +9,9 @@ all_sprites = pygame.sprite.Group()
 LIST = ['start', 'loc0', 'loc1']
 WALL = 0
 clock = pygame.time.Clock()
-with open('setings.txt', 'w', encoding='utf-8') as file:
+with open('setings.txt', 'w', encoding='utf-8') as file, open('constants.txt', 'w', encoding='utf-8') as file1:
     file.write('000')
+    file1.write('')
 
 
 # write def for back button
@@ -257,8 +258,7 @@ class Locations:
                        'свою легенду. '
                 write_text(screen, coordinates=(40, 130), text=text)
                 flag5 = 0
-            # this comm in ban because of future def 👀
-            # I think it will be more correct to use 2 different 'if' because there are only 2 things
+
             if datetime.datetime.now().second == sec_start + 2 and flag10:
                 screen.fill(pygame.Color('black'))
                 text = 'Ничего… больше ничего не помню, почему я здесь:' \
@@ -281,33 +281,39 @@ class Locations:
         text_input = ''
         while running:
             pygame.display.flip()
-            Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), turn=0, size=(800, 600))
+            Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), size=(800, 600))
             Rules(screen0, 'loc0', wall=wall)
             Settings(screen0, wall, 735, 'loc0')
+            with open('setings.txt', 'r') as file:
+                file = file.read()
             if wall == 0:
                 text_input = ''
-                Sprites(all_sprites, screen=screen0, name_file='broke_window0.png', xy=(40, 50), turn=0,
+                if file[1] == '0':
+                    picture = 'broke_window0.png'
+                else:
+                    picture = 'window_screamer.png'
+                Sprites(all_sprites, screen=screen0, name_file=picture, xy=(40, 50),
                         size=(400, 400), colorkey=-1)
-                Sprites(all_sprites, screen=screen0, name_file='table.png', xy=(350, 250), turn=0, size=(400, 400),
+                Sprites(all_sprites, screen=screen0, name_file='table.png', xy=(350, 250), size=(400, 400),
                         colorkey=-1)
             elif wall == 1:
                 text_input = ''
-                Sprites(all_sprites, screen=screen0, name_file='wardrobe.png', xy=(40, 50), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='wardrobe0.png', xy=(40, 50),
                         size=(400, 400), colorkey=-1)
-                Sprites(all_sprites, screen=screen0, name_file='armchair.png', xy=(400, 200), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='armchair.png', xy=(400, 260),
                         size=(300, 300), colorkey=-1)
             elif wall == 2:
                 text_input = ''
-                Sprites(all_sprites, screen=screen0, name_file='eyes.png', xy=(40, 50), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='eyes.png', xy=(40, 50),
                         size=(400, 400), colorkey=-1)
-                Sprites(all_sprites, screen=screen0, name_file='firewood.png', xy=(300, 300), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='firewood.png', xy=(300, 300),
                         size=(400, 400), colorkey=-1)
             elif wall == 3:
-                Sprites(all_sprites, screen=screen0, name_file='tv.png', xy=(450, 300), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='tv.png', xy=(450, 300),
                         size=(200, 200), colorkey=-1)
-                Sprites(all_sprites, screen=screen0, name_file='door.png', xy=(80, 20), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='door.png', xy=(80, 20),
                         size=(400, 400), colorkey=-1)
-                Sprites(all_sprites, screen=screen0, name_file='frame.png', xy=(280, 180), turn=0,
+                Sprites(all_sprites, screen=screen0, name_file='frame.png', xy=(280, 180),
                         size=(120, 120), colorkey=-1)
 
             for event in pygame.event.get():
@@ -320,17 +326,39 @@ class Locations:
                     Rules(screen0, 'loc0', wall=wall).find_rules(x, y, 'loc0')
                     if wall == 0:
                         if 168 <= x <= 287 and 129 <= y <= 298:
-                            click_thing(screen0, wall, '')
+                            if file[1] == '1':
+                                pygame.mixer.music.load('knock on wood.mp3')
+                                pygame.mixer.music.play(3)
+                            print('reel window')
+                            text = 'Окно так заколочено, что :выбраться из него будет невозможно.: : : : : : :' \
+                                   'Окно такое смешное, я выпал.'
+                            click_thing(screen0, wall, text=text, xytxt=(150, 120))
                             return
-                        elif 375 <= x <= 440 and 319 <= y <= 398:
-                            print('left table')
-                        elif 599 <= x <= 689 and 345 <= y <= 438:
-                            print('right table')
+                        else:
+                            text = 'Магическим обазом 2 ящика стали одним.'
+                            if 375 <= x <= 440 and 319 <= y <= 398:
+                                print('left table')
+                                sp = [('box.png', ''), ((0, 0), ()), ((600, 450), )]
+                                click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2,
+                                            text=text, xytxt=(250, 370))
+                                return
+                            elif 599 <= x <= 689 and 345 <= y <= 438:
+                                print('right table')
+                                click_thing(screen0, wall, name_file='box.png', xyspr=(0, 0), size=(600, 450), kolspr=2)
+                                return
                     if wall == 1:
                         if 64 <= x <= 328 and 69 <= y <= 416:
                             print('wardrobe hi')
+                            sp = [('wardrobe_open.png', 'kotik_screamer_clothes_13.png'), ((0, 0), (100, 170)),
+                                  ((600, 450), (170, 170))]
+                            click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2)
+                            return
                         elif 429 <= x <= 670 and 230 <= y <= 408:
-                            print('armchair')
+                            print('oy armchair')
+                            # sp = [('.png', '.png'), ((0, 0), (100, 170)),
+                            #       ((600, 450), (170, 170))]
+                            # click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2)
+                            return
 
                 if event.type == pygame.KEYDOWN:
                     if wall == 3:  # input code
@@ -345,15 +373,19 @@ class Locations:
         pygame.quit()
 
 
-def click_thing(screen, wall, thing, wind='loc0', sprites=[]):  # bring the pressed item closer
-    screen_th = new_window(600, 400)
-    print('reel window')
-    write_some(screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
-    if sprites:
-        Sprites(all_sprites, screen=sprites[0], name_file=sprites[1], xy=sprites[2], turn=0, size=sprites[3],
-                colorkey=-1)
-    write_text(screen, (100, 100),
-               text='Окно такое смешное, я выпал: :Окно так заколочено, что выбраться из него будет очень трудно.')
+# bring the pressed item closer
+def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text='', xytxt=(0, 0), wind='loc0'):
+    screen_th = new_window(600, 390)
+    screen_th.fill(pygame.Color("black"))
+    with open('setings.txt', 'r') as file:
+        file = file.read()
+    if name_file and xyspr and size:
+        for i in range(kolspr):
+            name = name_file[i]
+            if (name[-6:-4] == '13' and file[1] == '1') or name[-6:-4] != '13':
+                Sprites(all_sprites, screen=screen_th, name_file=name, xy=xyspr[i], size=size[i], colorkey=-1)
+    write_some(screen_th, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
+    write_text(screen_th, xytxt, text=text)
 
     running = True
     while running:
