@@ -9,9 +9,13 @@ all_sprites = pygame.sprite.Group()
 LIST = ['start', 'loc0', 'loc1']
 WALL = 0
 clock = pygame.time.Clock()
+now_s = str(datetime.datetime.now().second)
+now_m = str(datetime.datetime.now().minute)
+code = now_s[0] + now_m[-1] + now_s[-1] + now_m[0]
+print(code)
 with open('setings.txt', 'w', encoding='utf-8') as file, open('constants.txt', 'w', encoding='utf-8') as file1:
     file.write('000')
-    file1.write('')
+    file1.write(f'right_code {code};')
 
 
 # write def for back button
@@ -88,14 +92,9 @@ class Start_window:
         while running:
             pygame.display.flip()
 
-            if datetime.datetime.now().second == sec_start + 5 and flag_drop:
+            if datetime.datetime.now().second == sec_start + 4 and flag_drop:
                 flag_drop = False
-                for i in range(random.randrange(2, 3)):
-                    turn = random.randrange(1, 70, 5)
-                    size = random.randrange(50, 150, 10)
-                    coord = random.choice([(random.randrange(400, 520, 10), random.randrange(110, 250, 10)),
-                                           (random.randrange(100, 350, 10), random.randrange(295, 320, 10))])
-                    Sprites(all_sprites, screen=screen, name_file='blood.jpg', xy=coord, turn=turn, size=(size, size))
+                random_sprites(screen, 'blood.jpg', (400, 520, 110, 250), (100, 350, 295, 320))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
@@ -115,7 +114,6 @@ class Settings:  # in txt will be settings
         self.corner = corner
         self.winds = winds
         self.wall = wall
-        print(self.winds)
 
     def find_set(self, x, y, wind, wall):
         if x >= self.corner and y <= 70:  # clicked on settings
@@ -165,10 +163,8 @@ class Settings:  # in txt will be settings
 
                         file1, line = self.file_open()
                         file1.close()
-                    elif 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
-                        screen_set.fill(pygame.Color("black"))
-                        self.screen.fill(pygame.Color("black"))
-                        windows(self.winds, self.wall)
+                    elif 10 <= x <= 50 and 10 <= y <= 35:
+                        button_back(screen_set, self.screen, self.winds, self.wall)
                         return
 
     def file_open(self):
@@ -227,10 +223,8 @@ class Rules:
                     running = False
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
-                    if 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
-                        screen_rules.fill(pygame.Color("black"))
-                        self.screen.fill(pygame.Color("black"))
-                        windows(self.winds, self.wall)
+                    if 10 <= x <= 50 and 10 <= y <= 35:
+                        button_back(screen_rules, self.screen, self.winds, self.wall)
                         return
 
 
@@ -272,9 +266,11 @@ class Locations:
 
     def location0(self, wall):
         clock = pygame.time.Clock()
-        clock.tick(900)
+        clock.tick(2000)
         start_time = datetime.datetime.now()
         print(start_time)
+        with open('constants.txt', 'r') as f:
+            code = f.read().split(';')[0].split()[1]
 
         screen0 = new_window(800, 560)
         running = True
@@ -304,8 +300,9 @@ class Locations:
                         size=(300, 300), colorkey=-1)
             elif wall == 2:
                 text_input = ''
-                Sprites(all_sprites, screen=screen0, name_file='eyes.png', xy=(40, 50),
-                        size=(400, 400), colorkey=-1)
+                Sprites(all_sprites, screen=screen0, name_file='frame_pic0.png', xy=(60, 60),
+                        size=(250, 250), colorkey=-1)
+                random_sprites(screen0, 'eyes.png', (90, 250, 90, 180), kol=(5, 15), size1=10, size2=70, footsize=5)
                 Sprites(all_sprites, screen=screen0, name_file='firewood.png', xy=(300, 300),
                         size=(400, 400), colorkey=-1)
             elif wall == 3:
@@ -338,7 +335,7 @@ class Locations:
                             text = 'Магическим обазом 2 ящика стали одним.'
                             if 375 <= x <= 440 and 319 <= y <= 398:
                                 print('left table')
-                                sp = [('box.png', ''), ((0, 0), ()), ((600, 450), )]
+                                sp = [('box.png', ''), ((0, 0), ()), ((600, 450),)]
                                 click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2,
                                             text=text, xytxt=(250, 370))
                                 return
@@ -370,6 +367,10 @@ class Locations:
 
             write_some(screen0, (300, 200), texty=' '.join(list(text_input)), size=40)
 
+            if text_input == code:
+                print('OK')
+                pygame.mixer.music.load('door_open.mp3')
+                pygame.mixer.music.play(1)
         pygame.quit()
 
 
@@ -394,15 +395,13 @@ def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text=''
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
-                if 10 <= x <= 50 and 10 <= y <= 35:  # back to the main window
-                    screen_th.fill(pygame.Color("black"))
-                    screen.fill(pygame.Color("black"))
-                    windows(wind, wall)
-                    print('Buy')
+                if 10 <= x <= 50 and 10 <= y <= 35:
+                    button_back(screen_th, screen, wind, wall)
                     return
 
 
-def move_poin(event, wall):  # provides 4-sided viewing
+# provides 4-sided viewing
+def move_poin(event, wall):
     if event.key == pygame.K_LEFT:
         if wall > 0:
             wall -= 1
@@ -415,16 +414,33 @@ def move_poin(event, wall):  # provides 4-sided viewing
     return wall
 
 
+# it helps change windows
 def windows(wind, wall):
     if wind == 'start':
         Start_window()
-        print(-1)
     elif wind == 'loc0':
         Locations().location0(wall)
-        print(0)
     # elif wind == 'loc1':
     #     Locations().location1(wall)
-    #     print(1)
+
+
+# back to the main window
+def button_back(screen1, screen2, wind, wall):
+    screen1.fill(pygame.Color("black"))
+    screen2.fill(pygame.Color("black"))
+    windows(wind, wall)
+
+
+def random_sprites(screen, file_name, sp1=(), sp2=(), kol=(2, 3), size1=50, size2=150, footsize=10):
+    for i in range(random.randrange(kol[0], kol[1])):
+        turn = random.randrange(1, 70, 5)
+        size = random.randrange(size1, size2, footsize)
+        if sp2:
+            coord = random.choice([(random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)),
+                                   (random.randrange(sp2[0], sp2[1], 10), random.randrange(sp2[2], sp2[3], 10))])
+        else:
+            coord = random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)
+        Sprites(all_sprites, screen=screen, name_file=file_name, xy=coord, turn=turn, size=(size, size), colorkey=-1)
 
 
 if __name__ == '__main__':
