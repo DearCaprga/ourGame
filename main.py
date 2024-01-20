@@ -181,6 +181,8 @@ def something(number_of_level):  # preface to the beginning of the level
         pygame.display.flip()
         clock.tick(50)
 
+# Press Shift+F10 to execute it or replace it with your code.
+# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 class Second_level:
     def __init__(self):
