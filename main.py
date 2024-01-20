@@ -52,9 +52,11 @@ def restart():
     # Start_window()
 
 
-FIRST_TIME = int(datetime.now().strftime("%S"))
-ALL_TIMER = 0
+FIRST_TIME = datetime.now()
 
+ALL_TIMER = 0
+COUNT_LEVEL = 1
+HEALTH = 100
 HARD = 0
 THINGS = []
 TIMER = 0
@@ -72,26 +74,29 @@ def write_some(screenni, coordinates, style, sizi, texty, color):
     screenni.blit(text, coordinates)
 
 
-COUNT_LEVEL = 1
-HEALTH = 100
+
 
 
 def final():
-    global COUNT_LEVEL, HEALTH
+    global COUNT_LEVEL, HEALTH, ALL_TIMER, THINGS
     sceeen = new_window(500, 500)
     if 'h2o' in THINGS and 'hclo4' in THINGS and 'fe' in THINGS:
         COUNT_LEVEL += 1
-        write_some(sceeen, (5, 10), 'Bradley Hand ITC', 10,
-                   'You have collected the right ingredients and prepared the right medicine that cured you of a dog bite',
-                   '#92000a')
-        write_some(sceeen, (50, 70), 'Bradley Hand ITC', 30, f'You complete this level', '#92000a')
-        write_some(sceeen, (0, 140), 'Bradley Hand ITC', 30, '-------------------------------------------',
-                   '#92000a')
-        directory = [[(50, 170), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
-                     [(50, 220), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
-                     [(50, 270), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
-                     [(50, 320), 'Bradley Hand ITC', 35, f'Things          {THINGS}']]
-        for i in range(4):
+        if ALL_TIMER > 60:
+            HEALTH //= ALL_TIMER // 60
+        directory = [[(30, 50), 'Bradley Hand ITC', 25, 'You have collected the right ingredients', '#92000a'],
+                     [(40, 100), 'Bradley Hand ITC', 30, 'and prepared the right medicine', '#92000a'],
+                     [(40, 150), 'Bradley Hand ITC', 30,
+                      ' that cured you of a dog bite',
+                      '#92000a'],
+                     [(100, 200), 'Bradley Hand ITC', 30, f'You complete this level', '#92000a'],
+                     [(0, 250), 'Bradley Hand ITC', 30, '------------------------------------------------------',
+                      '#92000a'],
+                     [(50, 270), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
+                     [(50, 320), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
+                     [(50, 370), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
+                     [(50, 420), 'Bradley Hand ITC', 35, f'Things         {len(THINGS)}']]
+        for i in range(9):
             write_some(sceeen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
                        '#92000a')  # parameters
     else:
@@ -101,11 +106,14 @@ def final():
                    'components and died from a dog bite', '#92000a')
         HEALTH = 0
     pygame.display.flip()
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
+                running = False
+                sceeen.fill(pygame.Color(0, 0, 0))
                 open_window = Final_window()
 
 
@@ -147,17 +155,20 @@ mountain = Mountain()
 
 def something(number_of_level):  # preface to the beginning of the level
     screenn = new_window(500, 500)
-
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_DOWN:
                     if event.key == pygame.K_DOWN:
-                        Landing((randint(0, 500), randint(0, 350)))
+                        Landing((randint(0, 500), randint(0, 300)))
                 if event.key == pygame.K_RIGHT:
+                    screenn.fill(pygame.Color(0, 0, 0))
+                    running = False
                     open_level = Second_level()
+
         screen.fill(pygame.Color("black"))
         with open(f'{number_of_level}.txt', 'rt', encoding='utf-8') as f:
             y = 50
@@ -171,13 +182,10 @@ def something(number_of_level):  # preface to the beginning of the level
         clock.tick(50)
 
 
-def timer(screen):
-    write_some(screen, (400, 400), 'Bradley Hand ITC', 30, ALL_TIMER, '#92000a')
-
-
 class Second_level:
     def __init__(self):
-        TIME_OF_LEVEL = int(datetime.now().strftime("%S"))
+        global TIMER, ALL_TIMER, TIME_OF_LEVEL
+        TIME_OF_LEVEL = datetime.now()
         print(TIME_OF_LEVEL, FIRST_TIME)
         image_now = 'im21.jpg'
         book_list = 0
@@ -191,18 +199,27 @@ class Second_level:
         arrow.rect = arrow.image.get_rect()
         running = True
         while running:
-            TIMER = TIME_OF_LEVEL - int(datetime.now().strftime("%S"))
-            ALL_TIMER = FIRST_TIME - int(datetime.now().strftime("%S"))
-            if TIMER > 180 + 120 * HARD or ALL_TIMER > 780 + 120 * HARD:
+            # pygame.draw.rect(screen, pygame.Color('red'), pygame.Rect(400, 0, 500, 50))
+            # pygame.display.flip()
+            time = str(datetime.now() - TIME_OF_LEVEL).split(':')
+            TIMER = int(time[0][-2:]) * 360 + int(time[1]) * 60 + int(time[-1][:2])
+            time_all = str(datetime.now() - FIRST_TIME).split(':')
+            ALL_TIMER = int(time_all[0][-2:]) * 360 + int(time_all[1]) * 60 + int(time_all[-1][:2])
+            print(ALL_TIMER)
+            # write_some(screen, (410, 20), None, 20, f'{TIMER}', 'black')
+            if TIMER >= 180 + 120 * HARD or ALL_TIMER >= 780 + 120 * HARD or len(THINGS) == 4:
                 # если HARD = 1 то 5 мин, если 0, то 3 мин
                 # если HARD = 1 то 15 мин, если 0, то 13 мин
-                open_window = Final_window()
+                arrow.kill()
+                print(TIMER)
+                running = False
+                screen.fill(pygame.Color(0, 0, 0))
+                final()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
-                    print(x, y)
                     if 96 < x < 194 and 32 < y < 105 and image_now == 'im21.jpg':
                         arrow.kill()
                         image = load_image('image_stol.jpg')
@@ -273,11 +290,6 @@ class Second_level:
                             THINGS.append('cl')
                         if 29 < x < 57 and 377 < y < 461 and image_now == 'im_lek1.jpg':
                             THINGS.append('cm')
-                    else:
-                        arrow.kill()
-                        screen.fill(pygame.Color(0, 0, 0))
-                        #running = False
-                        final()
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
                         arrow.kill()
@@ -312,11 +324,12 @@ class Second_level:
 
 class Final_window:
     def __init__(self):
+        global TIMER, ALL_TIMER
         screen = new_window(400, 400)
         directory = []
-        if ALL_TIMER > 1000:
+        if TIMER >= 180 + 120 * HARD or ALL_TIMER >= 780 + 120 * HARD:
             directory = [[(150, 10), 'Chiller', 50, 'You fall'],
-                         [(30, 60), 'Bradley Hand ITC', 'You thought to long...'],
+                         [(30, 60), 'Bradley Hand ITC', 30, 'You thought to long...'],
                          [(30, 100), 'Bradley Hand ITC', 30, 'So you were killed']]
         elif HEALTH == 0:
             directory = [[(150, 10), 'Chiller', 50, 'You fall'],
@@ -353,14 +366,16 @@ def animation(width_pic, height_pic, fps, name_pic, position=(0, 0)):
             frames.append(image.subsurface(pygame.Rect(w_each * i, shot, w_each, h_each)))
         shot += int(h_each)
     number = 0
-
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 screen.fill((0, 0, 0))
+                running = False
                 something(2)
+
 
         screen.fill((0, 0, 0))
         number += 1
@@ -378,7 +393,10 @@ if __name__ == '__main__':
     running = True
 
     while running:
-
+        # restart()
+        # for_final_window()
+        # something(2)
+        final()
         pygame.display.flip()
 
         for event in pygame.event.get():
