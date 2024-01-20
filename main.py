@@ -11,15 +11,11 @@ WALL = 0
 clock = pygame.time.Clock()
 now_s = str(datetime.datetime.now().second)
 now_m = str(datetime.datetime.now().minute)
-code = now_s[0] + now_m[-1] + now_s[-1] + now_m[0]
+code = now_s[0] + now_m[-1] + now_s[-1] + '3'
 print(code)
 with open('setings.txt', 'w', encoding='utf-8') as file, open('constants.txt', 'w', encoding='utf-8') as file1:
     file.write('000')
-    file1.write(f'right_code {code};')
-
-
-# write def for back button
-# write def for sprite in walls
+    file1.write(code + ' 0')
 
 
 def new_window(width, height):
@@ -59,6 +55,14 @@ def load_image(name, colorkey=None, size=(10, 10), turn=0):
     else:
         image = image.convert_alpha()
     return image
+
+
+def play_music(state):
+    if state:
+        pygame.mixer.music.load('background music.mp3')
+        pygame.mixer.music.play(-1)
+    else:
+        pygame.mixer.music.pause()
 
 
 class Sprites(pygame.sprite.Sprite):
@@ -145,7 +149,7 @@ class Settings:  # in txt will be settings
                             file1.write('1' + str(line[1]) + str(line[2]))
                         file1.close()
                         file, line = self.file_open()
-                        self.play_music(line[0])
+                        play_music(line[0])
                     elif 300 <= x <= 470 and 190 <= y <= 230:
                         if x <= 355:
                             file1.write(str(line[0]) + '0' + str(line[2]))
@@ -176,13 +180,6 @@ class Settings:  # in txt will be settings
         pygame.display.flip()
         self.draw_line(line[2], 380, 490, 420, 305)
         return file1, line
-
-    def play_music(self, state):
-        if state:
-            pygame.mixer.music.load('background music.mp3')
-            pygame.mixer.music.play(-1)
-        else:
-            pygame.mixer.music.pause()
 
     def draw_line(self, state, x1, x2, x3, y):
         color1 = 'black'
@@ -243,7 +240,7 @@ class Locations:
 
         running = True
         while running:
-            if datetime.datetime.now().second == sec_start + 1 and flag5:
+            if datetime.datetime.now().second == sec_start + 5 and flag5:
                 screen.fill(pygame.Color("black"))
                 text = 'Я точно помню, как мы решили пойти вместе в ту заброшку :' \
                        'про которую говорил весь город. Вроде когда-то тут жила :' \
@@ -253,25 +250,22 @@ class Locations:
                 write_text(screen, coordinates=(40, 130), text=text)
                 flag5 = 0
 
-            if datetime.datetime.now().second == sec_start + 2 and flag10:
+            elif datetime.datetime.now().second == sec_start + 10 and flag10:
                 screen.fill(pygame.Color('black'))
                 text = 'Ничего… больше ничего не помню, почему я здесь:' \
                        'один, кто меня ударил и как отсюда выбраться?:' \
                        'Нельзя медлить, иначе будет хуже.'
                 write_text(screen, coordinates=(80, 150), text=text)
                 flag10 = 0
-            if datetime.datetime.now().second == sec_start + 3:
+            elif datetime.datetime.now().second == sec_start + 15:
                 self.location0(0)
                 return
 
     def location0(self, wall):
         clock = pygame.time.Clock()
-        clock.tick(2000)
+        clock.tick(4000)
         start_time = datetime.datetime.now()
         print(start_time)
-        with open('constants.txt', 'r') as f:
-            code = f.read().split(';')[0].split()[1]
-
         screen0 = new_window(800, 560)
         running = True
         text_input = ''
@@ -280,10 +274,17 @@ class Locations:
             Sprites(all_sprites, screen=screen0, name_file='wall0.png', xy=(0, 0), size=(800, 600))
             Rules(screen0, 'loc0', wall=wall)
             Settings(screen0, wall, 735, 'loc0')
-            with open('setings.txt', 'r') as file:
+            with open('setings.txt', 'r') as file, open('constants.txt', 'r') as f:
+                file_scr = f.read().split()
                 file = file.read()
+            if file_scr[1] == '1':
+                print('scream')
+                Sprites(all_sprites, screen=screen0, name_file='pursuing_screamer.png',  xy=(50, 400),
+                        size=(400, 400), colorkey=-1)
+            # I don`t think there will be def because of different parameters
             if wall == 0:
                 text_input = ''
+                answer = ''
                 if file[1] == '0':
                     picture = 'broke_window0.png'
                 else:
@@ -300,14 +301,16 @@ class Locations:
                         size=(300, 300), colorkey=-1)
             elif wall == 2:
                 text_input = ''
+                answer = ''
                 Sprites(all_sprites, screen=screen0, name_file='frame_pic0.png', xy=(60, 60),
                         size=(250, 250), colorkey=-1)
-                random_sprites(screen0, 'eyes.png', (90, 250, 90, 180), kol=(5, 15), size1=10, size2=70, footsize=5)
+                random_sprites(screen0, 'eyes.png', (90, 240, 90, 180), kol=(5, 15), size1=10, size2=70, footsize=5)
                 Sprites(all_sprites, screen=screen0, name_file='firewood.png', xy=(300, 300),
                         size=(400, 400), colorkey=-1)
             elif wall == 3:
+                answer = ''
                 Sprites(all_sprites, screen=screen0, name_file='tv.png', xy=(450, 300),
-                        size=(200, 200), colorkey=-1)
+                        size=(200, 200))
                 Sprites(all_sprites, screen=screen0, name_file='door.png', xy=(80, 20),
                         size=(400, 400), colorkey=-1)
                 Sprites(all_sprites, screen=screen0, name_file='frame.png', xy=(280, 180),
@@ -321,6 +324,7 @@ class Locations:
                     print(x, y)
                     Settings(screen0, wall, 735, 'loc0').find_set(x, y, 'loc0', wall=wall)
                     Rules(screen0, 'loc0', wall=wall).find_rules(x, y, 'loc0')
+                    print(wall)
                     if wall == 0:
                         if 168 <= x <= 287 and 129 <= y <= 298:
                             if file[1] == '1':
@@ -331,30 +335,79 @@ class Locations:
                                    'Окно такое смешное, я выпал.'
                             click_thing(screen0, wall, text=text, xytxt=(150, 120))
                             return
-                        else:
-                            text = 'Магическим обазом 2 ящика стали одним.'
-                            if 375 <= x <= 440 and 319 <= y <= 398:
-                                print('left table')
-                                sp = [('box.png', ''), ((0, 0), ()), ((600, 450),)]
-                                click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2,
-                                            text=text, xytxt=(250, 370))
-                                return
-                            elif 599 <= x <= 689 and 345 <= y <= 438:
-                                print('right table')
-                                click_thing(screen0, wall, name_file='box.png', xyspr=(0, 0), size=(600, 450), kolspr=2)
-                                return
-                    if wall == 1:
+                        elif 375 <= x <= 440 and 319 <= y <= 398:
+                            text = f'Возмите число {code[2]} на заметку: : : : :' \
+                                   f'Еще 2 ящика закрыты простым смертным'
+                            print('left table')
+                            sp = [('box0.png', ), ((0, 0), ), ((600, 450), )]
+                            click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=1,
+                                        text=text, xytxt=(150, 210), colortxt='#92000a')
+                            return
+                        elif 599 <= x <= 689 and 345 <= y <= 438:
+                            print('right table')
+                            if file[1] == '1':
+                                text = 'Запомни число, сколько :раз к тебе будут стучаться:' \
+                                       'каждый раз, поделенное :на 5.'
+                            else:
+                                text = 'Кажется, число 3 может :где-то пригодиться.'
+
+                            click_thing(screen0, wall, name_file=('box0.png', 'paper_list.png'),
+                                        xyspr=((0, 0), (160, 130)), size=((600, 450), (250, 250)), kolspr=2,
+                                        text=text, xytxt=(170, 170), colortxt='SaddleBrown')
+                            return
+                    elif wall == 1:
                         if 64 <= x <= 328 and 69 <= y <= 416:
                             print('wardrobe hi')
-                            sp = [('wardrobe_open.png', 'kotik_screamer_clothes_13.png'), ((0, 0), (100, 170)),
-                                  ((600, 450), (170, 170))]
-                            click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2)
+                            sp = [('wardrobe_open.png', 'kotik_screamer_clothes_13.png', 'text_input.png'),
+                                  ((0, 0), (100, 170), (200, 200)), ((600, 450), (170, 170), (150, 150))]
+                            if file[1] == '1':
+                                text = 'Было 16 ног — я посчитал. :Проспал две недели — :десяток пропал. :Кто я?'
+                            else:
+                                text = 'Ты видишь меня только: с одной стороны. :Я меняюсь каждый день.' \
+                                       ':Иногда большая, :иногда едва заметная. :Кто я?'
+                            click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=3,
+                                        text=text, xytxt=(120, 50))
                             return
                         elif 429 <= x <= 670 and 230 <= y <= 408:
                             print('oy armchair')
-                            # sp = [('.png', '.png'), ((0, 0), (100, 170)),
-                            #       ((600, 450), (170, 170))]
-                            # click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=2)
+                            sp = [('sledgehammer.png', ), ((100, 150), ),
+                                  ((300, 300), )]
+                            if file_scr[1] == '1':
+                                text = 'Ура вы нашли кувалду и убили монстрика.'
+                                with open('constants.txt', 'r+') as file:
+                                    print(file_scr[1])
+                                    file_scr[1] = '0'
+                                    file.write(file_scr[0] + ' ' + file_scr[1])
+                            else:
+                                text = 'Вы нашли кувалду, но она вам не нужна, :поэтому оставили на своем месте.'
+                            click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=1,
+                                        text=text, xytxt=(150, 120))
+                            return
+                    elif wall == 2:
+                        if 64 <= x <= 328 and 69 <= y <= 416:
+                            print('picture')
+                            with open('constants.txt', 'r+') as file:
+                                print(file_scr[1])
+                                file_scr[1] = '1'
+                                file.write(file_scr[0] + ' ' + file_scr[1])
+                            Sprites(all_sprites, screen=screen0, name_file='pursuing_screamer.png', xy=(50, 400),
+                                    size=(400, 400), colorkey=-1)
+                            text = 'На вас выскочил скример, так что: избавьтесь от него или останьтесь с ним навсегда'
+                            click_thing(screen0, wall, text=text, xytxt=(150, 120))
+                            return
+                        else:
+                            print('wood')
+                            sp = [('wood.png', ), ((0, 0), ), ((600, 450), )]
+                            text = 'Количество кучек поленьев пригодится потом.:Если ничего нет, так и запомни'
+                            click_thing(screen0, wall, name_file=sp[0], text=text, xytxt=(0, 350), rand=1)
+                            return
+                    elif wall == 3:
+                        if 450 <= x <= 640 and 300 <= y <= 440:
+                            print('tv')
+                            text = ' - Первым возьми число от загадки:' \
+                                   ' - Потом допиши число, котрое встретилось рядом с картиной:' \
+                                   ' - Последними двумя числами будут из левого и правого ящиков:'
+                            click_thing(screen0, wall, text=text, xytxt=(20, 120))
                             return
 
                 if event.type == pygame.KEYDOWN:
@@ -367,26 +420,37 @@ class Locations:
 
             write_some(screen0, (300, 200), texty=' '.join(list(text_input)), size=40)
 
-            if text_input == code:
+            if text_input == code and file_scr[1] == '0':
                 print('OK')
                 pygame.mixer.music.load('door_open.mp3')
-                pygame.mixer.music.play(1)
+                pygame.mixer.music.play()
+                return
         pygame.quit()
 
 
 # bring the pressed item closer
-def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text='', xytxt=(0, 0), wind='loc0'):
+def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text='', xytxt=(0, 0),
+                wind='loc0', colortxt='white', rand=0):
+    answer = ''
     screen_th = new_window(600, 390)
+    screen.fill(pygame.Color("black"))
     screen_th.fill(pygame.Color("black"))
     with open('setings.txt', 'r') as file:
         file = file.read()
-    if name_file and xyspr and size:
-        for i in range(kolspr):
-            name = name_file[i]
-            if (name[-6:-4] == '13' and file[1] == '1') or name[-6:-4] != '13':
-                Sprites(all_sprites, screen=screen_th, name_file=name, xy=xyspr[i], size=size[i], colorkey=-1)
+    if rand:
+        for i in range(int(code[1])):
+            x = random.randrange(50, 450, 10)
+            y = random.randrange(100, 250, 10)
+            Sprites(all_sprites, screen=screen_th, name_file=name_file[0], xy=(x, y), size=(100, 100), colorkey=-1)
+    else:
+        if name_file and xyspr and size:
+            for i in range(kolspr):
+                name = name_file[i]
+                print(name)
+                if (name[-6:-4] == '13' and file[1] == '1') or name[-6:-4] != '13':
+                    Sprites(all_sprites, screen=screen_th, name_file=name, xy=xyspr[i], size=size[i], colorkey=-1)
     write_some(screen_th, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
-    write_text(screen_th, xytxt, text=text)
+    write_text(screen_th, xytxt, text=text, color=colortxt)
 
     running = True
     while running:
@@ -396,9 +460,21 @@ def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text=''
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = pygame.mouse.get_pos()
                 if 10 <= x <= 50 and 10 <= y <= 35:
+                    print(file[0])
+                    if text.split()[0] == 'Окно':
+                        play_music(int(file[0]))
                     button_back(screen_th, screen, wind, wall)
                     return
+            if event.type == pygame.KEYDOWN:
+                if wall == 1:
+                    inp = event.unicode
+                    if len(answer) < 9:
+                        answer += inp
+                    print(answer)
 
+        write_some(screen_th, (220, 220), texty=answer, size=30)
+        if (file[1] == '1' and answer == 'бабочка') or (file[1] == '0' and answer == 'луна'):
+            write_some(screen_th, (210, 250), texty=f'Помни число {code[0]}')
 
 # provides 4-sided viewing
 def move_poin(event, wall):
