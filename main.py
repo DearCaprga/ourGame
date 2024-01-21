@@ -1,203 +1,34 @@
 import pygame
 from PIL import Image
-import os
-import sys
-from random import randint
-import datetime
-from datetime import datetime
-
-
-def load_image(name, color_key=None):
-    fullname = os.path.join('data', name)
-    try:
-        image = pygame.image.load(fullname).convert()
-    except pygame.error as message:
-        print('Cannot load image:', name)
-        raise SystemExit(message)
-
-    if color_key is not None:
-        if color_key == -1:
-            color_key = image.get_at((0, 0))
-        image.set_colorkey(color_key)
-    else:
-        image = image.convert_alpha()
-    return image
-
-
-all_sprites = pygame.sprite.Group()
-clock = pygame.time.Clock()
-
-
-def new_window(width, height):
-    pygame.init()
-    size = width, height = width, height
-    screen = pygame.display.set_mode(size)
-    screen.fill(pygame.Color(0, 0, 0))
-    return screen
-
-
-class Sprites(pygame.sprite.Sprite):
-    def __init__(self, *group, colorkey=None, name_file, xy, turn=0, size=(50, 50)):
-        super().__init__(*group)
-        image = load_image(os.path.join(name_file), turn=turn, size=size, colorkey=colorkey)
-        self.image = image
-        self.rect = self.image.get_rect()
-        self.rect.x, self.rect.y = xy[0], xy[1]
-        all_sprites.draw(screen)
-        pygame.display.flip()
-
-
-def restart():
-    screen.fill(pygame.Color(0, 0, 0))
-    # Start_window()
-
-
-FIRST_TIME = datetime.now()
-
-ALL_TIMER = 0
-COUNT_LEVEL = 1
-HEALTH = 100
-HARD = 0
-THINGS = []
-TIMER = 0
-TIME_OF_LEVEL = 0
-
-
-def terminate():
-    pygame.quit()
-    sys.exit()
-
-
-def write_some(screenni, coordinates, style, sizi, texty, color):
-    font = pygame.font.SysFont(style, sizi)
-    text = font.render(texty, True, pygame.Color(color))
-    screenni.blit(text, coordinates)
-
-
-
-
-
-def final():
-    global COUNT_LEVEL, HEALTH, ALL_TIMER, THINGS
-    sceeen = new_window(500, 500)
-    if 'h2o' in THINGS and 'hclo4' in THINGS and 'fe' in THINGS:
-        COUNT_LEVEL += 1
-        if ALL_TIMER > 60:
-            HEALTH //= ALL_TIMER // 60
-        directory = [[(30, 50), 'Bradley Hand ITC', 25, 'You have collected the right ingredients', '#92000a'],
-                     [(40, 100), 'Bradley Hand ITC', 30, 'and prepared the right medicine', '#92000a'],
-                     [(40, 150), 'Bradley Hand ITC', 30,
-                      ' that cured you of a dog bite',
-                      '#92000a'],
-                     [(100, 200), 'Bradley Hand ITC', 30, f'You complete this level', '#92000a'],
-                     [(0, 250), 'Bradley Hand ITC', 30, '------------------------------------------------------',
-                      '#92000a'],
-                     [(50, 270), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
-                     [(50, 320), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
-                     [(50, 370), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
-                     [(50, 420), 'Bradley Hand ITC', 35, f'Things         {len(THINGS)}']]
-        for i in range(9):
-            write_some(sceeen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
-                       '#92000a')  # parameters
-    else:
-        write_some(sceeen, (15, 110), 'Bradley Hand ITC', 30,
-                   'You did not collect the necessary', '#92000a')
-        write_some(sceeen, (15, 150), 'Bradley Hand ITC', 30,
-                   'components and died from a dog bite', '#92000a')
-        HEALTH = 0
-    pygame.display.flip()
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                running = False
-                sceeen.fill(pygame.Color(0, 0, 0))
-                open_window = Final_window()
-
-
-screen = new_window(500, 500)
-
-
-class Mountain(pygame.sprite.Sprite):
-    image = load_image("стол.png", -1)
-    image = pygame.transform.scale(image, (500, 100))
-
-    def __init__(self):
-        super().__init__(com_sprites)
-        self.image = Mountain.image
-        self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect.bottom = 500
-
-
-class Landing(pygame.sprite.Sprite):
-    image = load_image("im_camen.jpg", -1)
-    image = pygame.transform.scale(image, (100, 100))
-
-    def __init__(self, pos):
-        super().__init__(com_sprites)
-        self.image = Landing.image
-        self.rect = self.image.get_rect()
-        self.mask = pygame.mask.from_surface(self.image)
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
-
-    def update(self):
-        if not pygame.sprite.collide_mask(self, mountain):
-            self.rect = self.rect.move(0, 1)
-
-
-com_sprites = pygame.sprite.Group()
-mountain = Mountain()
-
-
-def something(number_of_level):  # preface to the beginning of the level
-    screenn = new_window(500, 500)
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                terminate()
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
-                    if event.key == pygame.K_DOWN:
-                        Landing((randint(0, 500), randint(0, 300)))
-                if event.key == pygame.K_RIGHT:
-                    screenn.fill(pygame.Color(0, 0, 0))
-                    running = False
-                    open_level = Second_level()
-
-        screen.fill(pygame.Color("black"))
-        with open(f'{number_of_level}.txt', 'rt', encoding='utf-8') as f:
-            y = 50
-            for i in f:
-                write_some(screenn, (50, y), 'Bradley Hand ITC', 30, i.rstrip(), '#92000a')
-                y += 40
-        pygame.display.flip()
-        com_sprites.draw(screen)
-        com_sprites.update()
-        pygame.display.flip()
-        clock.tick(50)
-import pygame
-# import pygame.freetype
-from PIL import Image
 import random
 import os
 import datetime
+import sys
 
 all_sprites = pygame.sprite.Group()
 LIST = ['start', 'loc0', 'loc1']
-WALL = 0
+FIRST_TIME = datetime.datetime.now()
+ALL_TIMER = 0
+COUNT_LEVEL = 1
+HEALTH = 100
+THINGS = []
 clock = pygame.time.Clock()
 now_s = str(datetime.datetime.now().second)
 now_m = str(datetime.datetime.now().minute)
 code = now_s[0] + now_m[-1] + now_s[-1] + '3'
 print(code)
+pygame.init()
 with open('setings.txt', 'w', encoding='utf-8') as file, open('constants.txt', 'w', encoding='utf-8') as file1:
     file.write('000')
     file1.write(code + ' 0')
+
+
+# before classes there are functions that help with basic things
+
+# close game
+def terminate():
+    pygame.quit()
+    sys.exit()
 
 
 def new_window(width, height):
@@ -212,7 +43,7 @@ def write_some(screen, coordinates, style='Bernard MT Condensed', size=25, texty
     font = pygame.font.SysFont(style, size)
     text = font.render(texty, True, color)
     screen.blit(text, coordinates)
-    pygame.display.flip()
+    # pygame.display.flip()
 
 
 def write_text(screen, coordinates, style='Bernard MT Condensed', size=25, text='', color='white'):
@@ -220,15 +51,18 @@ def write_text(screen, coordinates, style='Bernard MT Condensed', size=25, text=
     text = text.split(':')
     for i in range(kol + 1):
         write_some(screen, (coordinates[0], coordinates[1] + (size + 2) * i), style, size, text[i], color)
+    pygame.display.flip()
 
 
-def load_image(name, colorkey=None, size=(10, 10), turn=0):
+def load_image(name, colorkey=None, size=(), turn=0):
     img = Image.open(os.path.join('data', name))
-    img.thumbnail(size=size)
-    img = img.rotate(turn)
+    if size != ():
+        img.thumbnail(size=size)
+        img = img.rotate(turn)
     img.save('picture.png')
     fullname = os.path.join('picture.png')
     image = pygame.image.load(fullname)
+    # image.transform.scale(image, (size1, size2))
     if colorkey is not None:
         image = image.convert()
         if colorkey == -1:
@@ -245,6 +79,35 @@ def play_music(state):
         pygame.mixer.music.play(-1)
     else:
         pygame.mixer.music.pause()
+
+
+# it helps change windows
+def windows(wind, wall):
+    if wind == 'start':
+        Start_window()
+    elif wind == 'loc0':
+        Locations().location0(wall)
+    elif wind == 'loc1':
+        Locations().location1(wall)
+
+
+# back to the main window
+def button_back(screen1, screen2, wind, wall):
+    screen1.fill(pygame.Color("black"))
+    screen2.fill(pygame.Color("black"))
+    windows(wind, wall)
+
+
+def random_sprites(screen, file_name, sp1=(), sp2=(), kol=(2, 3), size1=50, size2=150, footsize=10):
+    for i in range(random.randrange(kol[0], kol[1])):
+        turn = random.randrange(1, 70, 5)
+        size = random.randrange(size1, size2, footsize)
+        if sp2:
+            coord = random.choice([(random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)),
+                                   (random.randrange(sp2[0], sp2[1], 10), random.randrange(sp2[2], sp2[3], 10))])
+        else:
+            coord = random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)
+        Sprites(all_sprites, screen=screen, name_file=file_name, xy=coord, turn=turn, size=(size, size), colorkey=-1)
 
 
 class Sprites(pygame.sprite.Sprite):
@@ -283,7 +146,7 @@ class Start_window:
                 random_sprites(screen, 'blood.jpg', (400, 520, 110, 250), (100, 350, 295, 320))
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     print(x, y)
@@ -291,6 +154,51 @@ class Start_window:
                     if 190 <= x <= 380 and 175 <= y <= 295:  # clicked on start
                         Locations().perface()
                         return
+
+
+class Final_window:
+    def __init__(self):
+        global ALL_TIMER, COUNT_LEVEL, HEALTH, THINGS
+        with open('setings.txt', 'r') as file:
+            hard = int(file.read()[2])
+        sreen = new_window(400, 400)
+        sreen.fill((0, 0, 0))
+        directory = []
+        time_all = str(datetime.datetime.now() - FIRST_TIME).split(':')
+        ALL_TIMER = int(time_all[0][-2:]) * 360 + int(time_all[1]) * 60 + int(time_all[-1][:2])
+        running = True
+        if 'h2o' in THINGS and 'hclo4' in THINGS and 'fe' in THINGS:
+            COUNT_LEVEL += 1
+            if ALL_TIMER > 60:
+                HEALTH //= ALL_TIMER // 60
+        if ALL_TIMER >= 780 + 120 * hard:
+            directory = [[(150, 10), 'Chiller', 50, 'You fall'],
+                         [(30, 60), 'Bradley Hand ITC', 30, 'You thought to long...'],
+                         [(30, 100), 'Bradley Hand ITC', 30, 'So you were killed']]
+        elif HEALTH == 0:
+            directory = [[(150, 10), 'Chiller', 50, 'You fall'],
+                         [(30, 60), 'Bradley Hand ITC', 30, 'Your health is...'],
+                         [(170, 100), 'Bradley Hand ITC', 30, 'Too small']]
+        elif COUNT_LEVEL == 2:
+            directory = [[(150, 30), 'Chiller', 45, 'You win'],
+                         [(50, 90), 'Bradley Hand ITC', 28, 'You finished this game'],
+                         [(90, 120), 'Bradley Hand ITC', 28, 'You are lucky']]
+
+        while running:
+            for i in range(3):
+                write_some(sreen, directory[i][0], directory[i][1], directory[i][2], directory[i][3], '#92000a')
+            write_some(sreen, (0, 140), 'Bradley Hand ITC', 30, '-------------------------------------------',
+                       '#92000a')
+            directory = [[(50, 170), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
+                         [(50, 220), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
+                         [(50, 270), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}']]
+            for i in range(3):
+                write_some(sreen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
+                           '#92000a')  # parameters
+            pygame.display.flip()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
 
 
 class Settings:  # in txt will be settings
@@ -303,25 +211,29 @@ class Settings:  # in txt will be settings
 
     def find_set(self, x, y, wind, wall):
         if x >= self.corner and y <= 70:  # clicked on settings
-            print('qwerty')
             Settings(self.screen, winds=wind, wall=wall).settings_view()
 
     def settings_view(self):
         screen_set = new_window(600, 400)
-        write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
-        write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
-        for i in range(3):
-            write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
-                       ['Music', 'Scream', 'Speed'][i], '#92000a')  # 120 190 260
-            write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
-                       ['off / on', 'low / high', 'light / hard'][i], '#92000a')
-
         running = True
         while running:
             file1, line = self.file_open()
+            screen_set.fill('black')
+            write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
+            write_some(screen_set, (180, 20), 'Bradley Hand ITC', 50, 'Settings', '#92000a')
+            for i in range(3):
+                write_some(screen_set, (80, 120 + i * 70), 'Bradley Hand ITC', 40,
+                           ['Music', 'Scream', 'Speed'][i], '#92000a')  # 120 190 260
+                write_some(screen_set, (300, 120 + i * 70), 'Bradley Hand ITC', 40,
+                           ['off / on', 'low / high', 'light / hard'][i], '#92000a')
+
+            time_all = str(datetime.datetime.now() - FIRST_TIME).split(':')
+            ALL_TIMER = int(time_all[0][-2:]) * 360 + int(time_all[1]) * 60 + int(time_all[-1][:2])
+            write_some(screen_set, (420, 10), 'Arial', 15, 'Seconds have passed:' + str(ALL_TIMER))
+            clock.tick(10)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     if 300 <= x <= 420 and 120 <= y <= 160:
@@ -338,144 +250,6 @@ class Settings:  # in txt will be settings
                         elif x >= 390:
                             file1.write(str(line[0]) + '1' + str(line[2]))
 
-class Second_level:
-    def __init__(self):
-        global TIMER, ALL_TIMER, TIME_OF_LEVEL
-        TIME_OF_LEVEL = datetime.now()
-        print(TIME_OF_LEVEL, FIRST_TIME)
-        image_now = 'im21.jpg'
-        book_list = 0
-        screen = new_window(500, 500)
-        images = ['im21.jpg', 'im22.jpg', '23.jpg', '24.jpg']
-        name_images = 0
-        image = load_image(images[name_images % 4])
-        image = pygame.transform.scale(image, (500, 500))
-        arrow = pygame.sprite.Sprite(all_sprites)
-        arrow.image = image
-        arrow.rect = arrow.image.get_rect()
-        running = True
-        while running:
-            # pygame.draw.rect(screen, pygame.Color('red'), pygame.Rect(400, 0, 500, 50))
-            # pygame.display.flip()
-            time = str(datetime.now() - TIME_OF_LEVEL).split(':')
-            TIMER = int(time[0][-2:]) * 360 + int(time[1]) * 60 + int(time[-1][:2])
-            time_all = str(datetime.now() - FIRST_TIME).split(':')
-            ALL_TIMER = int(time_all[0][-2:]) * 360 + int(time_all[1]) * 60 + int(time_all[-1][:2])
-            print(ALL_TIMER)
-            # write_some(screen, (410, 20), None, 20, f'{TIMER}', 'black')
-            if TIMER >= 180 + 120 * HARD or ALL_TIMER >= 780 + 120 * HARD or len(THINGS) == 4:
-                # если HARD = 1 то 5 мин, если 0, то 3 мин
-                # если HARD = 1 то 15 мин, если 0, то 13 мин
-                arrow.kill()
-                print(TIMER)
-                running = False
-                screen.fill(pygame.Color(0, 0, 0))
-                final()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    terminate()
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    x, y = pygame.mouse.get_pos()
-                    if 96 < x < 194 and 32 < y < 105 and image_now == 'im21.jpg':
-                        arrow.kill()
-                        image = load_image('image_stol.jpg')
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        image_now = 'image_stol.jpg'
-                    if 237 < x < 277 and 113 < y < 172 and image_now == 'im21.jpg':
-                        arrow.kill()
-                        image = load_image('24.jpg')
-                        image = pygame.transform.scale(image, (470, 470))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        image_now = '24.jpg'
-                    if 154 < x < 180 and 172 < y < 202 and image_now == '24.jpg':
-                        arrow.kill()
-                        image = load_image('imbook.PNG')
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        image_now = 'imbook.PNG'
-                    if 267 < x < 302 and 102 < y < 152 and image_now == '24.jpg':
-                        arrow.kill()
-                        image = load_image('book0.jpg')
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        image_now = 'book0.jpg'
-                    if 63 < x < 456 and 79 < y < 429 and image_now == 'book0.jpg':
-                        arrow.kill()
-                        image = load_image(f'book{book_list % 8}.jpg')
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        if 250 < x < 500:
-                            book_list += 1
-                        else:
-                            book_list -= 1
-                    if 90 < x < 191 and 139 < y < 220 and image_now == 'im21.jpg':
-                        arrow.kill()
-                        image = load_image('im_lek1.jpg')
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                        image_now = 'im_lek1.jpg'
-                    if len(THINGS) < 4:
-                        if 118 < x < 138 and 62 < y < 134 and image_now == 'im_lek1.jpg':
-                            THINGS.append('h2o')
-                        if 118 < x < 138 and 62 < y < 134 and image_now == 'im_lek1.jpg':
-                            THINGS.append('fe')
-                        if 352 < x < 395 and 29 < y < 160 and image_now == 'im_lek1.jpg':
-                            THINGS.append('hclo4')
-                        if 180 < x < 196 and 107 < y < 137 and image_now == 'im_lek1.jpg':
-                            THINGS.append('cu')
-                        if 207 < x < 224 and 80 < y < 142 and image_now == 'im_lek1.jpg':
-                            THINGS.append('zn')
-                        if 229 < x < 245 and 123 < y < 145 and image_now == 'im_lek1.jpg':
-                            THINGS.append('be')
-                        if 49 < x < 90 and 309 < y < 385 and image_now == 'im_lek1.jpg':
-                            THINGS.append('кровь человеческая')
-                        if 94 < x < 111 and 425 < y < 460 and image_now == 'im_lek1.jpg':
-                            THINGS.append('cl')
-                        if 29 < x < 57 and 377 < y < 461 and image_now == 'im_lek1.jpg':
-                            THINGS.append('cm')
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                        arrow.kill()
-                        image_now = images[name_images % 4]
-                        image = load_image(images[name_images % 4])
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                    if event.key == pygame.K_LEFT:
-                        arrow.kill()
-                        name_images += 1
-                        image = load_image(images[name_images % 4])
-                        image_now = images[name_images % 4]
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-                    elif event.key == pygame.K_RIGHT:
-                        arrow.kill()
-                        name_images -= 1
-                        image_now = images[name_images % 4]
-                        image = load_image(images[name_images % 4])
-                        image = pygame.transform.scale(image, (500, 500))
-                        arrow = pygame.sprite.Sprite(all_sprites)
-                        arrow.image = image
-                        arrow.rect = arrow.image.get_rect()
-            screen.fill(pygame.Color(0, 0, 0))
-            all_sprites.draw(screen)
-            pygame.display.flip()
                         file1, line = self.file_open()
                         file1.close()
 
@@ -490,34 +264,6 @@ class Second_level:
                     elif 10 <= x <= 50 and 10 <= y <= 35:
                         button_back(screen_set, self.screen, self.winds, self.wall)
                         return
-class Final_window:
-    def __init__(self):
-        global TIMER, ALL_TIMER
-        screen = new_window(400, 400)
-        directory = []
-        if TIMER >= 180 + 120 * HARD or ALL_TIMER >= 780 + 120 * HARD:
-            directory = [[(150, 10), 'Chiller', 50, 'You fall'],
-                         [(30, 60), 'Bradley Hand ITC', 30, 'You thought to long...'],
-                         [(30, 100), 'Bradley Hand ITC', 30, 'So you were killed']]
-        elif HEALTH == 0:
-            directory = [[(150, 10), 'Chiller', 50, 'You fall'],
-                         [(30, 60), 'Bradley Hand ITC', 30, 'Your health is...'],
-                         [(170, 100), 'Bradley Hand ITC', 30, 'Too small']]
-        elif COUNT_LEVEL == 2:
-            directory = [[(150, 30), 'Chiller', 45, 'You win'],
-                         [(50, 90), 'Bradley Hand ITC', 28, 'You finished this game'],
-                         [(90, 120), 'Bradley Hand ITC', 28, 'You are lucky']]
-        for i in range(3):
-            write_some(screen, directory[i][0], directory[i][1], directory[i][2], directory[i][3], '#92000a')
-        write_some(screen, (0, 140), 'Bradley Hand ITC', 30, '-------------------------------------------', '#92000a')
-        directory = [[(50, 170), 'Bradley Hand ITC', 35, f'Time =          {ALL_TIMER}'],
-                     [(50, 220), 'Bradley Hand ITC', 35, f'Levels            {COUNT_LEVEL}'],
-                     [(50, 270), 'Bradley Hand ITC', 35, f'Health =       {HEALTH}'],
-                     [(50, 320), 'Bradley Hand ITC', 35, f'Things          {len(THINGS)}']]
-        for i in range(4):
-            write_some(screen, directory[i][0], directory[i][1], directory[i][2], directory[i][3],
-                       '#92000a')  # parameters
-        pygame.display.flip()
 
     def file_open(self):
         file1 = open('setings.txt', 'r+')
@@ -546,8 +292,8 @@ class Rules:
         self.winds = wind
         self.wall = wall
 
-    def find_rules(self, x, y, wind):
-        if 690 <= x <= 740 and 10 <= y <= 60:  # clicked on settings
+    def find_rules(self, x, y, wind, size=690):
+        if size <= x <= size + 50 and 10 <= y <= 60:  # clicked on rules
             Rules(self.screen, wind=wind, wall=self.wall).rules_view()
 
     def rules_view(self):
@@ -555,17 +301,18 @@ class Rules:
         write_some(self.screen, (10, 10), 'Bradley Hand ITC', 25, 'back', 'blue')
         write_some(screen_rules, (180, 20), 'Bradley Hand ITC', 50, 'Rules guide', '#92000a')
         text = ' - Чтобы передвинуть обзор на следующую стену,:нажмите кнопки <-, -> на клавиатуре:' \
-               ' - Чтобы узнать больше о предмете, на него надо:"нажать" мышкой или навести курсор и нажать Q:' \
-               ' - При длительном общении с непонятными челиками :теряется здоровье:' \
+               ' - Чтобы узнать больше о предмете, на него надо:"нажать" мышкой:' \
+               ' - Время можно увидеть в настройках:' \
                ' - Если таймер закончится до конца прохождения, :то игра завершится:' \
-               ' - Если где-то надо ввести текст, то ничего нажимать: не надо, просто печатайте.'
+               ' - Если где-то надо ввести текст, то ничего нажимать: не надо, просто печатайте' \
+               ' - Не медлите, чем дольше вы играете, тем меньше у вас здоровья.'
         write_text(screen_rules, (80, 100), text=text)
 
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     if 10 <= x <= 50 and 10 <= y <= 35:
@@ -574,9 +321,6 @@ class Rules:
 
 
 class Locations:
-    def __init__(self):
-        pass
-
     def perface(self):
         flag5 = 1
         flag10 = 1
@@ -588,7 +332,8 @@ class Locations:
 
         running = True
         while running:
-            if datetime.datetime.now().second == sec_start + 5 and flag5:
+            pygame.display.flip()
+            if datetime.datetime.now().second == sec_start + 4 and flag5:
                 screen.fill(pygame.Color("black"))
                 text = 'Я точно помню, как мы решили пойти вместе в ту заброшку :' \
                        'про которую говорил весь город. Вроде когда-то тут жила :' \
@@ -598,14 +343,14 @@ class Locations:
                 write_text(screen, coordinates=(40, 130), text=text)
                 flag5 = 0
 
-            elif datetime.datetime.now().second == sec_start + 10 and flag10:
+            elif datetime.datetime.now().second == sec_start + 9 and flag10:
                 screen.fill(pygame.Color('black'))
                 text = 'Ничего… больше ничего не помню, почему я здесь:' \
                        'один, кто меня ударил и как отсюда выбраться?:' \
                        'Нельзя медлить, иначе будет хуже.'
                 write_text(screen, coordinates=(80, 150), text=text)
                 flag10 = 0
-            elif datetime.datetime.now().second == sec_start + 15:
+            elif datetime.datetime.now().second == sec_start + 11:
                 self.location0(0)
                 return
 
@@ -627,7 +372,7 @@ class Locations:
                 file = file.read()
             if file_scr[1] == '1':
                 print('scream')
-                Sprites(all_sprites, screen=screen0, name_file='pursuing_screamer.png',  xy=(50, 400),
+                Sprites(all_sprites, screen=screen0, name_file='pursuing_screamer.png', xy=(50, 400),
                         size=(400, 400), colorkey=-1)
             # I don`t think there will be def because of different parameters
             if wall == 0:
@@ -666,7 +411,7 @@ class Locations:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    terminate()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     x, y = pygame.mouse.get_pos()
                     print(x, y)
@@ -687,7 +432,7 @@ class Locations:
                             text = f'Возмите число {code[2]} на заметку: : : : :' \
                                    f'Еще 2 ящика закрыты простым смертным'
                             print('left table')
-                            sp = [('box0.png', ), ((0, 0), ), ((600, 450), )]
+                            sp = [('box0.png',), ((0, 0),), ((600, 450),)]
                             click_thing(screen0, wall, name_file=sp[0], xyspr=sp[1], size=sp[2], kolspr=1,
                                         text=text, xytxt=(150, 210), colortxt='#92000a')
                             return
@@ -718,8 +463,8 @@ class Locations:
                             return
                         elif 429 <= x <= 670 and 230 <= y <= 408:
                             print('oy armchair')
-                            sp = [('sledgehammer.png', ), ((100, 150), ),
-                                  ((300, 300), )]
+                            sp = [('sledgehammer.png',), ((100, 150),),
+                                  ((300, 300),)]
                             if file_scr[1] == '1':
                                 text = 'Ура вы нашли кувалду и убили монстрика.'
                                 with open('constants.txt', 'r+') as file:
@@ -745,7 +490,7 @@ class Locations:
                             return
                         else:
                             print('wood')
-                            sp = [('wood.png', ), ((0, 0), ), ((600, 450), )]
+                            sp = [('wood.png',), ((0, 0),), ((600, 450),)]
                             text = 'Количество кучек поленьев пригодится потом.:Если ничего нет, так и запомни'
                             click_thing(screen0, wall, name_file=sp[0], text=text, xytxt=(0, 350), rand=1)
                             return
@@ -770,10 +515,124 @@ class Locations:
 
             if text_input == code and file_scr[1] == '0':
                 print('OK')
-                pygame.mixer.music.load('door_open.mp3')
-                pygame.mixer.music.play()
+                animation(17, 1, 50, "image_anima.jpg", (0, 0))
                 return
-        pygame.quit()
+
+    def location1(self, wall):
+        global ALL_TIMER, FIRST_TIME, THINGS
+        image_now = 'im21.jpg'
+        wall = wall
+        book_list = 0
+        screen = new_window(500, 500)
+        images = ['im21.jpg', 'im22.jpg', '23.jpg', '24.jpg']
+        name_images = images.index(wall)
+        image = load_image(images[name_images % 4], size=(500, 500))
+        image = pygame.transform.scale(image, (500, 500))
+        arrow = pygame.sprite.Sprite(all_sprites)
+        arrow.image = image
+        arrow.rect = arrow.image.get_rect()
+        running = True
+        while running:
+            Settings(screen, wall=wall, corner=435, winds='loc1')
+            Rules(screen, wind='loc1', wall=wall, x=380)
+            with open('setings.txt', 'r') as file:
+                hard = (int(file.read()[2]) - 1) * -1
+            if ALL_TIMER >= 780 + 120 * hard or len(THINGS) == 3:
+                # если HARD = 1, то 15 мин, если 0 - 13 мин
+                arrow.kill()
+                running = False
+                screen.fill(pygame.Color(0, 0, 0))
+                Final_window()
+                # final()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    terminate()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    x, y = pygame.mouse.get_pos()
+                    Settings(screen, wall, corner=435, winds='loc1').find_set(x, y, 'loc1', wall)
+                    Rules(screen, 'loc1', wall=wall, x=380).find_rules(x, y, 'loc1', size=380)
+                    if 96 < x < 194 and 32 < y < 105 and image_now == 'im21.jpg':
+                        arrow, image_now = things_closer(arrow, 'image_stol.jpg')
+
+                    if 237 < x < 277 and 113 < y < 172 and image_now == 'im21.jpg':
+                        arrow, image_now = things_closer(arrow, '24.jpg')
+
+                    if 154 < x < 180 and 172 < y < 202 and image_now == '24.jpg':
+                        arrow, image_now = things_closer(arrow, 'imbook.PNG')
+
+                    if 267 < x < 302 and 102 < y < 152 and image_now == '24.jpg':
+                        arrow, image_now = things_closer(arrow, 'book0.jpg')
+                        book_list = 0
+
+                    if 63 < x < 456 and 79 < y < 429 and image_now == f'book0.jpg':
+                        arrow, image_now = things_closer(arrow, f'book{book_list % 8}.jpg')
+                        image_now = 'book0.jpg'
+                        if 250 < x < 500:
+                            book_list += 1
+                        else:
+                            book_list -= 1
+                    if 90 < x < 191 and 139 < y < 220 and image_now == 'im21.jpg':
+                        arrow, image_now = things_closer(arrow, 'im_lek1.jpg')
+
+                    if len(THINGS) < 3:
+                        if image_now == 'im_lek1.jpg':
+                            if 118 < x < 138 and 62 < y < 134:
+                                THINGS.append('h2o')
+                            elif 71 < x < 95 and 410 < y < 457:
+                                THINGS.append('fe')
+                            elif 352 < x < 395 and 29 < y < 160:
+                                THINGS.append('hclo4')
+                            elif 180 < x < 196 and 107 < y < 137:
+                                THINGS.append('cu')
+                            elif 207 < x < 224 and 80 < y < 142:
+                                THINGS.append('zn')
+                            elif 229 < x < 245 and 123 < y < 145:
+                                THINGS.append('be')
+                            elif 49 < x < 90 and 309 < y < 385:
+                                THINGS.append('кровь человеческая')
+                            elif 94 < x < 111 and 425 < y < 460:
+                                THINGS.append('cl')
+                            elif 29 < x < 57 and 377 < y < 461:
+                                THINGS.append('cm')
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
+                        images, name_images, image_now, arrow = next_wind(images, name_images, arrow)
+                    if event.key == pygame.K_LEFT:
+                        name_images += 1
+                        images, name_images, image_now, arrow = next_wind(images, name_images, arrow)
+                    elif event.key == pygame.K_RIGHT:
+                        name_images -= 1
+                        images, name_images, image_now, arrow = next_wind(images, name_images, arrow)
+                screen.fill(pygame.Color(0, 0, 0))
+                all_sprites.draw(screen)
+                pygame.display.flip()
+
+
+# this 4 def help in locations
+def things_closer(arrow, name_im):
+    arrow.kill()
+    image = load_image(name_im)
+    if name_im == '24.jpg':
+        size = (470, 470)
+    else:
+        size = (500, 500)
+    image = pygame.transform.scale(image, size)
+    arrow = pygame.sprite.Sprite(all_sprites)
+    arrow.image = image
+    arrow.rect = arrow.image.get_rect()
+    image_now = name_im
+    return arrow, image_now
+
+
+def next_wind(images, name_images, arrow):
+    arrow.kill()
+    image_now = images[name_images % 4]
+    image = load_image(images[name_images % 4])
+    image = pygame.transform.scale(image, (500, 500))
+    arrow = pygame.sprite.Sprite(all_sprites)
+    arrow.image = image
+    arrow.rect = arrow.image.get_rect()
+    return images, name_images, image_now, arrow
 
 
 # bring the pressed item closer
@@ -823,6 +682,8 @@ def click_thing(screen, wall, name_file=(), xyspr=(), size=(), kolspr=1, text=''
         write_some(screen_th, (220, 220), texty=answer, size=30)
         if (file[1] == '1' and answer == 'бабочка') or (file[1] == '0' and answer == 'луна'):
             write_some(screen_th, (210, 250), texty=f'Помни число {code[0]}')
+        pygame.display.flip()
+
 
 # provides 4-sided viewing
 def move_poin(event, wall):
@@ -838,45 +699,17 @@ def move_poin(event, wall):
     return wall
 
 
-# it helps change windows
-def windows(wind, wall):
-    if wind == 'start':
-        Start_window()
-    elif wind == 'loc0':
-        Locations().location0(wall)
-    # elif wind == 'loc1':
-    #     Locations().location1(wall)
-
-
-# back to the main window
-def button_back(screen1, screen2, wind, wall):
-    screen1.fill(pygame.Color("black"))
-    screen2.fill(pygame.Color("black"))
-    windows(wind, wall)
-
-
-def random_sprites(screen, file_name, sp1=(), sp2=(), kol=(2, 3), size1=50, size2=150, footsize=10):
-    for i in range(random.randrange(kol[0], kol[1])):
-        turn = random.randrange(1, 70, 5)
-        size = random.randrange(size1, size2, footsize)
-        if sp2:
-            coord = random.choice([(random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)),
-                                   (random.randrange(sp2[0], sp2[1], 10), random.randrange(sp2[2], sp2[3], 10))])
-        else:
-            coord = random.randrange(sp1[0], sp1[1], 10), random.randrange(sp1[2], sp1[3], 10)
-        Sprites(all_sprites, screen=screen, name_file=file_name, xy=coord, turn=turn, size=(size, size), colorkey=-1)
-
-
-
+# after levels
 def animation(width_pic, height_pic, fps, name_pic, position=(0, 0)):
     all_shot = width_pic * height_pic
     timer = pygame.time.Clock()
     frames = []
     screen = pygame.display.set_mode((500, 500))
-    image = pygame.image.load(name_pic)
+    image = pygame.image.load(os.path.join('data', name_pic))
     width, height = image.get_size()
     w_each, h_each = width / width_pic, height / height_pic
     shot = 0
+    print('anima')
     for j in range(int(height / h_each)):
         for i in range(int(width / w_each)):
             frames.append(image.subsurface(pygame.Rect(w_each * i, shot, w_each, h_each)))
@@ -889,37 +722,86 @@ def animation(width_pic, height_pic, fps, name_pic, position=(0, 0)):
                 terminate()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 screen.fill((0, 0, 0))
-                running = False
                 something(2)
-
-
+                return
         screen.fill((0, 0, 0))
         number += 1
         number %= all_shot
         screen.blit(frames[number], position)
-
         pygame.display.update()
         timer.tick(fps)
 
 
-animation(17, 1, 50, "image_anima.jpg", (0, 0))
-
-if __name__ == '__main__':
-    pygame.init()
+# info about level
+def something(number_of_level):  # preface to the beginning of the level
+    screenn = new_window(500, 500)
     running = True
-
     while running:
-        # restart()
-        # for_final_window()
-        # something(2)
-        final()
-        pygame.display.flip()
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 terminate()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    Landing((random.randint(0, 500), random.randint(0, 300)))
+                    print('land')
+                    pass
+                if event.key == pygame.K_RIGHT:
+                    screenn.fill(pygame.Color(0, 0, 0))
+                    print('second')
+                    Locations().location1(wall='im21.jpg')
+                    return
 
-    pygame.quit()
+        screen.fill(pygame.Color("black"))
+        with open(f'{number_of_level}.txt', 'rt', encoding='utf-8') as f:
+            y = 50
+            for i in f:
+                write_some(screenn, (50, y), 'Bradley Hand ITC', 30, i.rstrip(), '#92000a')
+                y += 40
+        # pygame.display.flip()
+        com_sprites.draw(screen)
+        com_sprites.update()
+        pygame.display.flip()
+        clock.tick(50)
+
+
+# for beautiful def something
+class Mountain(pygame.sprite.Sprite):
+    screen = new_window(500, 500)
+    image = load_image("стол.png", colorkey=-1, size=(500, 100))
+    image = pygame.transform.scale(image, (500, 100))
+
+    def __init__(self):
+        super().__init__(com_sprites)
+        self.image = Mountain.image
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.bottom = 500
+
+
+screen = new_window(500, 500)
+com_sprites = pygame.sprite.Group()
+mountain = Mountain()
+
+
+# it`s also for def something
+class Landing(pygame.sprite.Sprite):
+    image = load_image("im_camen.jpg", colorkey=-1, size=(100, 100))
+    image = pygame.transform.scale(image, (100, 100))
+
+    def __init__(self, pos):
+        super().__init__(com_sprites)
+        self.image = Landing.image
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+        self.rect.x = pos[0]
+        self.rect.y = pos[1]
+
+    def update(self):
+        if not pygame.sprite.collide_mask(self, mountain):
+            self.rect = self.rect.move(0, 1)
+
+
+if __name__ == '__main__':
     Start_window()
     pygame.display.flip()
     pygame.quit()
